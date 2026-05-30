@@ -1,0 +1,151 @@
+{
+  "baseline_id": "ac2e8a97-98a9-5fb8-986e-c2d3c97e4b19",
+  "baseline_version": "1.0.0",
+  "component_manifest": [
+    {
+      "classification_version": "demo-classifier-0.1",
+      "component_id": "cfb91871-7804-5e01-a89e-12bce08b534b",
+      "composite_confidence": 0.85,
+      "cve_matches": [],
+      "extraction_offset": "0x40000",
+      "mutability_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "READONLY",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "needs_review": false,
+      "overrides": [],
+      "security_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "SECURE",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "signature_info": {
+        "cert_expiry": null,
+        "present": true,
+        "signer": "DEMO-CA",
+        "verified": true
+      },
+      "source_image_id": "9cc28640-6da3-58f8-b977-6a8c01bc4ab4",
+      "suspicion_triggers": [],
+      "timestamp": "2026-01-01T12:00:00Z",
+      "type_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "DXE_DRIVER",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "vendor_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "INTEL",
+        "method": "RULE",
+        "rule_id": null
+      }
+    },
+    {
+      "classification_version": "demo-classifier-0.1",
+      "component_id": "7102ffea-9116-5fec-9af9-fb50980f5b62",
+      "composite_confidence": 0.85,
+      "cve_matches": [],
+      "extraction_offset": "0x40000",
+      "mutability_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "READONLY",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "needs_review": false,
+      "overrides": [],
+      "security_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "SECURE",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "signature_info": {
+        "cert_expiry": null,
+        "present": true,
+        "signer": "DEMO-CA",
+        "verified": true
+      },
+      "source_image_id": "9cc28640-6da3-58f8-b977-6a8c01bc4ab4",
+      "suspicion_triggers": [],
+      "timestamp": "2026-01-01T12:00:00Z",
+      "type_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "DXE_DRIVER",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "vendor_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "INTEL",
+        "method": "RULE",
+        "rule_id": null
+      }
+    },
+    {
+      "classification_version": "demo-classifier-0.1",
+      "component_id": "118096b2-01fb-52ed-89f8-7282abbb4b76",
+      "composite_confidence": 0.85,
+      "cve_matches": [],
+      "extraction_offset": "0x40000",
+      "mutability_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "READONLY",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "needs_review": false,
+      "overrides": [],
+      "security_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "SECURE",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "signature_info": {
+        "cert_expiry": null,
+        "present": true,
+        "signer": "DEMO-CA",
+        "verified": true
+      },
+      "source_image_id": "9cc28640-6da3-58f8-b977-6a8c01bc4ab4",
+      "suspicion_triggers": [],
+      "timestamp": "2026-01-01T12:00:00Z",
+      "type_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "DXE_DRIVER",
+        "method": "RULE",
+        "rule_id": null
+      },
+      "vendor_axis": {
+        "confidence": 0.85,
+        "evidence": null,
+        "label": "INTEL",
+        "method": "RULE",
+        "rule_id": null
+      }
+    }
+  ],
+  "created_timestamp": "2026-01-01T12:00:00Z",
+  "firmware_version": "1.0",
+  "model": "DEMO-X1",
+  "name": "INTEL DEMO-X1 1.0",
+  "notes": null,
+  "source_image_hash": "55d72a4091d258a9968942c045f5c72455d72a4091d258a9968942c045f5c724",
+  "vendor": "INTEL"
+}

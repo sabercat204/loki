@@ -1,0 +1,40 @@
+{
+  "components": [
+    {
+      "component_id": "57600395-8b24-5122-905f-0d5fd9a1a525",
+      "component_type_hint": "FFS_FILE_TYPE_0x07",
+      "guid": "11111111-2222-3333-4444-555566667777",
+      "name": "DemoModule",
+      "offset": "0x48",
+      "raw_hash": "865929e9a2003f3ee09f9bdddc052455bf5ba9d71cfcaacbda1f03346dc78816",
+      "raw_path": null,
+      "size": 312,
+      "source_image_id": "743d4dff-14ec-53a6-8a4a-71beb17ed7fa"
+    }
+  ],
+  "extraction_errors": [
+    {
+      "component_id": null,
+      "error_message": "[OPTIONAL_TOOL_MISSING] uefitool not available; falling back to required parser",
+      "timestamp": null
+    },
+    {
+      "component_id": null,
+      "error_message": "[OPTIONAL_TOOL_MISSING] chipsec not available; falling back to required parser",
+      "timestamp": null
+    }
+  ],
+  "extraction_timestamp": null,
+  "extractor_version": "0.1.0",
+  "source_image": {
+    "extraction_timestamp": null,
+    "file_hash": "59e2efaa45bffd9ada62741926382bf9528244039f596d484e107bf493da298b",
+    "file_path": null,
+    "file_size": 16384,
+    "firmware_version": null,
+    "image_id": "743d4dff-14ec-53a6-8a4a-71beb17ed7fa",
+    "model": null,
+    "vendor": null
+  },
+  "total_components": 1
+}

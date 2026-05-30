@@ -1,0 +1,41 @@
+
+taxonomy_version: "1.0.0"
+rules:
+  # Rules are keyed to the synthetic component fixture's GUIDs:
+  # uuid5(_FIXTURE_NAMESPACE, f"comp-guid-{i}") for i in 0..3
+  # where _FIXTURE_NAMESPACE = uuid5(LOKI_NAMESPACE,
+  # "tests.classification.fixtures").
+  - rule_id: golden.type.000
+    axis: type
+    matcher:
+      guid: 5d6f678b-3284-5c82-9e3b-a46c0ec38302
+    effect:
+      label: UEFI_DRIVER
+      confidence: 0.85
+      method: RULE
+      evidence: golden type rule for component 0
+  - rule_id: golden.vendor.000
+    axis: vendor
+    matcher:
+      guid: 8b43c4bd-c6e1-594c-9fd7-f92338c4c7b8
+    effect:
+      label: INTEL
+      confidence: 0.7
+      method: RULE
+      evidence: golden vendor rule for component 1
+  - rule_id: golden.security.000
+    axis: security_posture
+    matcher:
+      guid: 7c6a87dc-fca1-5c97-a29b-88a8f187c92d
+    effect:
+      label: SECURE
+      confidence: 0.9
+      method: RULE
+  - rule_id: golden.mutability.000
+    axis: mutability
+    matcher:
+      guid: ea959bf4-4e9d-5dda-9b44-ad5ce9fdba42
+    effect:
+      label: READONLY
+      confidence: 0.6
+      method: RULE
