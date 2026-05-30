@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint (ruff check)
+        run: ruff check loki tests scripts
+
+      - name: Format check (ruff format)
+        run: ruff format --check loki tests scripts
+
+      - name: Type check (mypy --strict)
+        run: mypy --strict loki tests scripts
+
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: pytest -q
+
+      - name: Run slow tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: pytest -m slow --timeout=60
+
+  package-macos:
+    runs-on: macos-latest
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,package]"
+
+      - name: Create app
+        run: python -m briefcase create macOS app
+
+      - name: Build app
+        run: python -m briefcase build macOS app
+
+      - name: Package DMG (ad-hoc signed)
+        run: python -m briefcase package macOS app --adhoc-sign
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loki-macOS-dmg
+          path: dist/Loki-*.dmg
+
+  package-windows:
+    runs-on: windows-latest
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,package]"
+
+      - name: Create app
+        run: python -m briefcase create windows app
+
+      - name: Build app
+        run: python -m briefcase build windows app
+
+      - name: Package
+        run: python -m briefcase package windows app --adhoc-sign
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loki-Windows-installer
+          path: dist/Loki-*
+
+  package-linux:
+    runs-on: ubuntu-latest
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgirepository1.0-dev gir1.2-gtk-3.0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,package]"
+
+      - name: Create app
+        run: python -m briefcase create linux appimage
+
+      - name: Build app
+        run: python -m briefcase build linux appimage
+
+      - name: Package AppImage
+        run: python -m briefcase package linux appimage --adhoc-sign
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loki-Linux-AppImage
+          path: dist/Loki-*
