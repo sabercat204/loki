@@ -1,0 +1,5 @@
+rule_id: "implant:blacklotus.bootmgfw"
+threat_family: "BlackLotus"
+ioc:
+  content_hash: "a3f1b2c4d5e6f7890123456789abcdef0123456789abcdef0123456789abcdef"
+  firmware_guid: null

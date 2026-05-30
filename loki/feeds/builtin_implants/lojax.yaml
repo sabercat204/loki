@@ -1,0 +1,5 @@
+rule_id: "implant:lojax.spi_flash"
+threat_family: "LoJax"
+ioc:
+  content_hash: "deadbeefcafeface0123456789abcdef0123456789abcdef0123456789abcdef"
+  firmware_guid: "12345678-abcd-ef01-2345-6789abcdef01"

@@ -1,0 +1,5 @@
+rule_id: "implant:mosaicregressor.dxe"
+threat_family: "MosaicRegressor"
+ioc:
+  content_hash: null
+  firmware_guid: "b4c7d8e9-f012-3456-789a-bcdef0123456"

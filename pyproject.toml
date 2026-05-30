@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loki"
+version = "0.1.0"
+description = "Firmware analysis platform — shared data model layer (loki.models)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "LicenseRef-Proprietary"
+license-files = ["LICENSE"]
+authors = [
+    { name = "LOKI contributors" },
+]
+keywords = ["firmware", "analysis", "security", "uefi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "pydantic>=2.7,<3.0",
+    "pyyaml>=6.0,<7.0",
+    "pyqt6>=6.6",
+    "uefi_firmware>=1.10",
+    "cryptography>=42.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-qt>=4.0",
+    "pytest-timeout>=2.0",
+    "hypothesis>=6.100",
+    "mypy>=1.10",
+    "ruff>=0.5",
+    "types-PyYAML>=6.0",
+]
+package = [
+    "briefcase>=0.4",
+]
+
+[project.scripts]
+loki = "loki.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["loki*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not slow'"
+markers = [
+    "slow: tests whose runtime is measured in seconds; opt in with `pytest -m slow`.",
+]
+filterwarnings = [
+    "error",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["yaml.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["uefi_firmware.*"]
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------------------
+# Briefcase (native packaging)
+# ---------------------------------------------------------------------------
+
+[tool.briefcase]
+project_name = "Loki"
+bundle = "dev.loki"
+version = "0.1.0"
+description = "Firmware analysis platform"
+authors = ["LOKI contributors"]
+license = "LicenseRef-Proprietary"
+requires = [
+    "pydantic>=2.7,<3.0",
+    "pyyaml>=6.0,<7.0",
+    "pyqt6>=6.6",
+    "uefi_firmware>=1.10",
+    "cryptography>=42.0",
+]
+
+[tool.briefcase.app.loki]
+formal_name = "Loki"
+description = "Firmware analysis platform — desktop application"
+sources = ["loki"]
+startup_module = "loki.gui"
+requires = []
+
+[tool.briefcase.app.loki.macOS]
+requires = []
+
+[tool.briefcase.app.loki.windows]
+requires = []
+
+[tool.briefcase.app.loki.linux]
+requires = []
+system_requires = []
+
+[tool.briefcase.app.loki.linux.appimage]
+manylinux = "manylinux_2_28"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W", "N", "RUF"]
+ignore = [
+    "E501",  # line length handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B011"]  # allow bare assert in property tests
+"loki/models/__init__.py" = ["RUF022"]  # __all__ ordering is grouped by module, not alphabetical
+
+[tool.ruff.format]
+quote-style = "double"
