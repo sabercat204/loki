@@ -3,7 +3,7 @@
 # LOOM — Living Object-Oriented Manifest
 ## Version 1.0.0
 
-> Initial fork of WEAVE / Loom v0.3.0 for Loki. This Loom is being initialized retroactively — the full requirements / design / tasks triples already live at `.kiro/specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline,analysis-engine}/`, and the v0.2.0 implementation now ships across **five subsystems** plus a GUI scaffold. The harness records the existing Tier 1–2 spec discipline as a Tier 3 subsystem registry so future operator-driven changes can be tracked through the standard Shuttle Protocol.
+> Initial fork of WEAVE / Loom v0.3.0 for Loki. This Loom is being initialized retroactively — the full requirements / design / tasks triples already live at `specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline,analysis-engine}/`, and the v0.2.0 implementation now ships across **five subsystems** plus a GUI scaffold. The harness records the existing Tier 1–2 spec discipline as a Tier 3 subsystem registry so future operator-driven changes can be tracked through the standard Shuttle Protocol.
 
 ---
 
@@ -17,7 +17,7 @@
     frameworks: [Pydantic v2 (data models), PyYAML (baseline persistence + config), PyQt6 (GUI scaffold), uefi_firmware (UEFI PI extraction), Hypothesis (property tests), pytest + pytest-qt (testing), mypy --strict, ruff]
     package_name: "loki"
     repo_root: "~/Sloptropy/loki/"
-    spec_directory: ".kiro/specs/"
+    spec_directory: "specs/"
     implementation_tool: "Manual + Cursor / Claude Code"
     author: "LOKI contributors"
     created: "2026-04-XX"             # First commit on the loki repo predates this fork; exact date in the project's .git history
@@ -40,7 +40,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Pydantic Data Models"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/loki-data-models/"
+    spec_path: "specs/loki-data-models/"
     description: "Pure-data type layer. Eight Pydantic v2 modules (~1100 source lines): enums.py (14 StrEnum types), firmware.py (FirmwareImage with deterministic image_id via uuid5(file_hash), ExtractedComponent, ExtractionError, ExtractionManifest), classification.py (AxisClassification, SignatureInfo, OverrideRecord, ClassificationRecord with auto-computed composite_confidence + needs_review flag), baseline.py (BaselineRecord, BaselineRegistry with three lookup methods, DeviationRecord, BaselineComparison with auto-computed summary counts by DeltaType), analysis.py (DeviationScore, FindingEvidence, FindingRecord, ActionRecord), reports.py (ReportSummary, ImageAnalysisReport with auto-computed severity distribution, FleetAnalysisReport), config.py (seven config sub-models + LokiConfig with from_yaml classmethod). Strict validation on construction; lossless JSON / YAML round-trip."
     threat_context: "MINIMAL_EXPOSURE"
     public_interface:
@@ -63,8 +63,8 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Extraction Pipeline"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/extraction-pipeline/"
-    description: "Turns a firmware binary on disk into a validated ExtractionManifest containing zero or more ExtractedComponent records and any ExtractionError instances captured during processing. v1 covers Intel Flash Descriptor (full-flash) images, UEFI PI firmware volumes, raw FFS blobs, UEFI capsules, PCI option ROMs, and Intel CPU microcode update blobs. Tiano + LZMA-Custom decompression and inner-component emission supported. Coreboot CBFS, ARM Trusted Firmware, Apple iBoot, Android boot, and vendor-private capsule wrappers are explicitly deferred. Deterministic: same binary plus same config produces the same manifest minus timestamp fields. Component IDs are derived as uuid5(LOKI_NAMESPACE, f'{file_hash}:0x{offset:x}:{raw_hash}') so the same component carries the same ID across runs and across hosts. All 28 tasks per `.kiro/specs/extraction-pipeline/tasks.md` ticked off."
+    spec_path: "specs/extraction-pipeline/"
+    description: "Turns a firmware binary on disk into a validated ExtractionManifest containing zero or more ExtractedComponent records and any ExtractionError instances captured during processing. v1 covers Intel Flash Descriptor (full-flash) images, UEFI PI firmware volumes, raw FFS blobs, UEFI capsules, PCI option ROMs, and Intel CPU microcode update blobs. Tiano + LZMA-Custom decompression and inner-component emission supported. Coreboot CBFS, ARM Trusted Firmware, Apple iBoot, Android boot, and vendor-private capsule wrappers are explicitly deferred. Deterministic: same binary plus same config produces the same manifest minus timestamp fields. Component IDs are derived as uuid5(LOKI_NAMESPACE, f'{file_hash}:0x{offset:x}:{raw_hash}') so the same component carries the same ID across runs and across hosts. All 28 tasks per `specs/extraction-pipeline/tasks.md` ticked off."
     threat_context: "STANDARD"
     public_interface:
       exports: [extract_firmware, ExtractionResult, ExtractionConfig (re-exported from models), magic-byte format detection, inner-component carving]
@@ -85,8 +85,8 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "GLEIPNIR Persistence"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/baseline-persistence/"
-    description: "YAML-on-disk persistence layer for named baselines. One human-readable file per baseline. Atomic writes via temp-file-rename. mtime/size concurrency check on read-back. Typed exception hierarchy under loki.baseline.errors. Quarantine directory for malformed or schema-mismatched baselines. R2.8-R2.10 (background-thread loading) and R7.10-R7.11 (per-file progress + cancellation) honored at the GUI layer. CLI surface: `loki baseline list/show/import/export/delete`. All 22 tasks per `.kiro/specs/baseline-persistence/tasks.md` ticked off."
+    spec_path: "specs/baseline-persistence/"
+    description: "YAML-on-disk persistence layer for named baselines. One human-readable file per baseline. Atomic writes via temp-file-rename. mtime/size concurrency check on read-back. Typed exception hierarchy under loki.baseline.errors. Quarantine directory for malformed or schema-mismatched baselines. R2.8-R2.10 (background-thread loading) and R7.10-R7.11 (per-file progress + cancellation) honored at the GUI layer. CLI surface: `loki baseline list/show/import/export/delete`. All 22 tasks per `specs/baseline-persistence/tasks.md` ticked off."
     threat_context: "STANDARD"   # Untrusted YAML input from disk; PyYAML safe_load enforced; quarantine for malformed input.
     public_interface:
       exports: [BaselineStore, BaselineEnvelope, BaselineNotFoundError, BaselineSchemaError, BaselineConcurrencyError, save / load / list / delete operations, quarantine helpers]
@@ -106,8 +106,8 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Four-Axis Classifier"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/classification-pipeline/"
-    description: "Turns ExtractedComponent records into validated ClassificationRecord instances along four taxonomic axes: type, vendor, security_posture, mutability. Library API at `from loki.classification import classify_components`. R5.6 dual-record contract: missing-bytes components emit both a ClassificationRecord and a corresponding error for the same component_id. Property 33–42 coverage at full Hypothesis depth. Public API surface includes ProgressEvent, ProgressCallback, CancellationToken for long-running runs. R6 v1 contract: `cve_matches` list always empty (CVE feed integration deferred to feeds subsystem). All 25 tasks per `.kiro/specs/classification-pipeline/tasks.md` ticked off. Performance: R11.1 (4096 components × 1024 rules under 30s, actual ~3s) and R11.3 (4096 components × 256 MiB total under 60s, actual ~3s) both pass."
+    spec_path: "specs/classification-pipeline/"
+    description: "Turns ExtractedComponent records into validated ClassificationRecord instances along four taxonomic axes: type, vendor, security_posture, mutability. Library API at `from loki.classification import classify_components`. R5.6 dual-record contract: missing-bytes components emit both a ClassificationRecord and a corresponding error for the same component_id. Property 33–42 coverage at full Hypothesis depth. Public API surface includes ProgressEvent, ProgressCallback, CancellationToken for long-running runs. R6 v1 contract: `cve_matches` list always empty (CVE feed integration deferred to feeds subsystem). All 25 tasks per `specs/classification-pipeline/tasks.md` ticked off. Performance: R11.1 (4096 components × 1024 rules under 30s, actual ~3s) and R11.3 (4096 components × 256 MiB total under 60s, actual ~3s) both pass."
     threat_context: "STANDARD"
     public_interface:
       exports: [classify_components, ClassificationResult, ProgressEvent, ProgressCallback, CancellationToken; signature loaders; rule registry]
@@ -116,7 +116,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     dependencies: [models, extraction]
     dependents: [analysis-engine (planned), gui (classification view, planned), cli, tests]
     properties:
-      - "Property 33–42: ten formal correctness properties from `.kiro/specs/classification-pipeline/design.md`"
+      - "Property 33–42: ten formal correctness properties from `specs/classification-pipeline/design.md`"
       - "R5.6 dual-record: missing-bytes input emits both record and error for same component_id"
       - "Determinism: same inputs + same rule registry → same ClassificationRecord set"
       - "Performance: 4096-component runs complete within published budgets"
@@ -143,7 +143,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "loki CLI"
     spec_status: "AD_HOC"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/cli/ (placeholder; no requirements/design/tasks files yet)"
+    spec_path: "specs/cli/ (placeholder; no requirements/design/tasks files yet)"
     description: "Top-level CLI dispatcher at loki.cli:main, registered as the `loki` console script in pyproject.toml. v1 subcommands: `loki gui` (launch desktop), `loki extract --progress` (run extraction pipeline against a firmware file with progress reporting), `loki baseline list/show/import/export/delete` (baseline management). Classification CLI subcommand intentionally deferred to a future spec (HANDOFF.md candidate move #2)."
     threat_context: "STANDARD"
     public_interface:
@@ -175,8 +175,8 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Analysis Engine"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/analysis-engine/{requirements.md (BIND'd 2026-05-28; 1194 lines, 20 EARS), design.md (BIND'd 2026-05-28; 1211 lines, 11 sections, P43-P52), tasks.md (BIND'd 2026-05-28; 28/28 tasks ticked), requirements-tension-pass.md (audit trail)}"
-    description: "IMPLEMENTED + APPROVED subsystem at v1.0.0. Library API at `from loki.analysis import analyze_image` produces FindingRecord and DeviationScore instances by comparing ClassificationRecord sets against BaselineRegistry entries. Twelve modules under loki/analysis/ (api, pipeline, version, matching, pairing, findings, scoring, posture, report, errors, timing, __init__). Six finding categories per v1: classification_mismatch, signature_regression, unexpected_component, missing_required_component, classification_gap, analysis_cancelled (Cancellation_Marker). PostureRating six-rule cascade per R17.5 post-HARDEN with G3-A catch-all + G4-B CRITICAL escalation. Determinism: same Target_Records + same Matched_Baseline + same AnalysisConfig + same ANALYSIS_VERSION produce bit-equal report modulo ImageAnalysisReport.timestamp + cancelled-run evidence.raw_indicators. Cooperative cancellation is a return-path, not a throw-path. AnalysisError exception hierarchy at loki/analysis/errors.py with four subclasses (AnalysisConfigError, BaselineNotFoundError, AnalysisInputError, AnalysisReportConstructionError). All ten Properties P43-P52 covered by Hypothesis tests; Properties 50+51 also pinned by static AST audits. R18.1 performance budget validated at 0.10s wall time for 1024+1024 components (~50x under the 5s budget). All 28 tasks per `.kiro/specs/analysis-engine/tasks.md` ticked off."
+    spec_path: "specs/analysis-engine/{requirements.md (BIND'd 2026-05-28; 1194 lines, 20 EARS), design.md (BIND'd 2026-05-28; 1211 lines, 11 sections, P43-P52), tasks.md (BIND'd 2026-05-28; 28/28 tasks ticked), requirements-tension-pass.md (audit trail)}"
+    description: "IMPLEMENTED + APPROVED subsystem at v1.0.0. Library API at `from loki.analysis import analyze_image` produces FindingRecord and DeviationScore instances by comparing ClassificationRecord sets against BaselineRegistry entries. Twelve modules under loki/analysis/ (api, pipeline, version, matching, pairing, findings, scoring, posture, report, errors, timing, __init__). Six finding categories per v1: classification_mismatch, signature_regression, unexpected_component, missing_required_component, classification_gap, analysis_cancelled (Cancellation_Marker). PostureRating six-rule cascade per R17.5 post-HARDEN with G3-A catch-all + G4-B CRITICAL escalation. Determinism: same Target_Records + same Matched_Baseline + same AnalysisConfig + same ANALYSIS_VERSION produce bit-equal report modulo ImageAnalysisReport.timestamp + cancelled-run evidence.raw_indicators. Cooperative cancellation is a return-path, not a throw-path. AnalysisError exception hierarchy at loki/analysis/errors.py with four subclasses (AnalysisConfigError, BaselineNotFoundError, AnalysisInputError, AnalysisReportConstructionError). All ten Properties P43-P52 covered by Hypothesis tests; Properties 50+51 also pinned by static AST audits. R18.1 performance budget validated at 0.10s wall time for 1024+1024 components (~50x under the 5s budget). All 28 tasks per `specs/analysis-engine/tasks.md` ticked off."
     threat_context: "STANDARD"
     public_interface:
       exports: [analyze_image, AnalysisProgressEvent, AnalysisProgressCallback, AnalysisCancellationToken, ANALYSIS_VERSION, AnalysisError, AnalysisConfigError, BaselineNotFoundError, AnalysisInputError, AnalysisReportConstructionError]
@@ -203,7 +203,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Classification CLI"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/classification-cli/{requirements.md (HARDEN'd 2026-05-28; 891 lines, 13 EARS), requirements-tension-pass.md (audit + HARDEN status footer), design.md (BIND'd 2026-05-28; 980 lines, 12 main sections, P53-P58), tasks.md (BIND'd 2026-05-28; 25/25 tasks ticked across 7 waves)}"
+    spec_path: "specs/classification-cli/{requirements.md (HARDEN'd 2026-05-28; 891 lines, 13 EARS), requirements-tension-pass.md (audit + HARDEN status footer), design.md (BIND'd 2026-05-28; 980 lines, 12 main sections, P53-P58), tasks.md (BIND'd 2026-05-28; 25/25 tasks ticked across 7 waves)}"
     description: "IMPLEMENTED + APPROVED subsystem at v1.0.0. Adds a `loki classify` subcommand to the existing top-level `loki` console script that reads a previously-saved ExtractionManifest JSON document (file path or stdin via `-`), runs the classification library against a caller-supplied rules directory, and emits a single ClassificationResult JSON object on stdout plus a one-line counts summary on stderr. All 25 tasks across 7 waves landed: pytest baseline rose from 1211 to 1317 (+106 new tests including 1 slow-marker R11.1 wrapper-only timing test); mypy --strict source-file count rose from 217 to 240 (+1 source helper at loki/classify_helpers.py + 22 test modules). The seven design defaults D1-D7 are baked in (D1: helpers in classify_helpers.py rather than inline in cli.py; D2: _CancelFlag is a tiny @dataclass; D3: --debug sets propagate=False for the run; D4: TTY guard fires first when manifest is `-`; D5: exit code 4 covers both ClassificationPipelineError catchall and unexpected Exception; D6: helpers are module-private with single-leading-underscore names; D7: _load_manifest returns int on failure rather than raising). The R5.6 dual-record contract from classification-pipeline is preserved verbatim. Cooperative cancellation is mapped to SIGINT → Cancel_Flag → exit 130 via the library's existing return-path (not throw-path) cancellation contract. Properties P53-P58 pin the contract: P53 stdin-or-file equivalence, P54 exit-code totality on `{0, 2, 3, 4, 5, 6, 130}`, P55 Cancel_Flag-driven cancellation marker shape (deterministic in-process test) plus a separate example-based subprocess test for SIGINT end-to-end, P56 `--summary-only` produces zero stdout bytes, P57 stderr summary line emission discipline (exactly one on success/cancellation/per-component-error; zero on whole-run failure), P58 no-leakage on stderr (paired static AST audit + dynamic stderr-capture audit; component_id whitelisted on Progress_Line only). Closes OT-LK-003. Three judgment calls during implementation: model_validate_json over model_validate (Pydantic strict-mode JSON-aware path); fixture case-fix in tests/classify_cli/conftest.py (uppercase enum labels for real-library compatibility); subprocess SIGINT test uses sys.executable + -c form (no loki/__main__.py exists)."
     threat_context: "STANDARD"   # Untrusted manifest input via stdin or filesystem; no network egress, no credential handling, no destructive operations.
     public_interface:
@@ -226,7 +226,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "External Feeds"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/feeds/{requirements.md (HARDEN'd 2026-05-29; 1732 lines, 15 EARS, P59-P68), requirements-tension-pass.md (audit trail; G1-G7 + M1-M4 resolved), design.md (BIND'd 2026-05-29; 1029 lines, D1-D8), tasks.md (BIND'd 2026-05-29; 28 tasks, 8 waves)}"
+    spec_path: "specs/feeds/{requirements.md (HARDEN'd 2026-05-29; 1732 lines, 15 EARS, P59-P68), requirements-tension-pass.md (audit trail; G1-G7 + M1-M4 resolved), design.md (BIND'd 2026-05-29; 1029 lines, D1-D8), tasks.md (BIND'd 2026-05-29; 28 tasks, 8 waves)}"
     description: "PROPOSED subsystem with APPROVED spec triple (requirements + design + tasks all BIND'd). CVE feed integration (NVD-style) plus implant-rule signatures. Library API at `from loki.feeds import FeedRegistry` + `loki feeds refresh` CLI subcommand. Will populate ClassificationRecord.cve_matches (currently always [] per R6 in v1) by mapping (component, classification) pairs against NVD-derived CVE cache. Eight banked CAST decisions plus eight design defaults (D1 hash-pin trust anchor; D2 NVD JSON 2.0; D3 semver-heuristic version matching; D4 frozen dataclasses for result types; D5 10k-row INSERT batch; D6 no progress callback on refresh; D7 same-host redirect policy; D8 P59-P68). TENSION pass resolved all seven forward threads: G1-B dual-scheme wording deferred to design; G2 hand-rolled CPE parser; G3-C tiny built-in implant set; G4-A seven-code exit taxonomy {0,2,3,4,5,6,130}; G5 trust_anchor_path field name; G6 P59-P68 (ten properties); G7 six-audit FULL-context surface. Architecture: 12 modules under loki/feeds/ (registry, cache, refresh, trust, cpe, implants, models, errors, version, timing, cli, __init__) + builtin_implants/ directory with three starter rules. Six FULL-context audits (static+dynamic log, static+dynamic request, TLS verification, redirect policy). Implementation footprint estimate: ~800 source lines under loki/feeds/ + ~1800 test lines under tests/feeds/; one model-layer migration (trust_anchor_path: str | None = None); ten properties P59-P68. Pytest baseline expected to rise from 1317 to ~1500-1550."
     threat_context: "FULL"   # D8-B banked: outbound network egress to NVD + trust-anchor verification (signature or hash-pin). First FULL subsystem in the project; sets project-wide precedent.
     public_interface:
@@ -242,7 +242,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "CVE Consumer Integration"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/consumer-wiring/{requirements.md (HARDEN'd 2026-05-29; 6 requirements, P69-P71), requirements-tension-pass.md (G1-G4 + M1-M3), design.md (BIND'd 2026-05-29; D1-D7), tasks.md (BIND'd 2026-05-29; 10/10 tasks, 4 waves)}"
+    spec_path: "specs/consumer-wiring/{requirements.md (HARDEN'd 2026-05-29; 6 requirements, P69-P71), requirements-tension-pass.md (G1-G4 + M1-M3), design.md (BIND'd 2026-05-29; D1-D7), tasks.md (BIND'd 2026-05-29; 10/10 tasks, 4 waves)}"
     description: "IMPLEMENTED + APPROVED subsystem. Bridges the Feeds subsystem's cve_lookup API into classification (populates ClassificationRecord.cve_matches) and analysis (surfaces FindingEvidence.matched_cve + DeviationScore.cve_introduced). Opt-in via feeds: FeedRegistry | None kwarg on classify_components. The analysis engine reads cve_matches from the model field only (no loki.feeds import). CLI integration: loki classify --feeds-config. Properties P69-P71: CVE population determinism, CVE introduction detection correctness, backward compatibility. Configurable cve_score_bump (default 0.5, range [0.0, 5.0]) on AnalysisConfig."
     threat_context: "STANDARD"
     public_interface:
@@ -262,8 +262,8 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
     codename: "Fleet Analyzer"
     spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: ".kiro/specs/fleet-analysis/{requirements.md (11 requirements, P72-P76), design.md (D1-D6), tasks.md (18/18 tasks ticked, 5 waves)}"
-    description: "IMPLEMENTED + APPROVED subsystem at v1.0.0. Library API at `from loki.fleet import analyze_fleet` aggregates pre-produced ImageAnalysisReport instances across an operator-defined fleet into a FleetAnalysisReport. Eight modules under loki/fleet/ (api, aggregation, membership, models, errors, version, cli, __init__). Two membership modes: config-driven YAML and directory-scan. Five aggregation passes: posture distribution, common findings (normalized-title grouping), CVE rollup, outlier detection (median-based, skip <3), worst-image ranking (top-3 by risk_score). CLI: `loki fleet analyze --config|--dir`. Properties P72-P76 covered by Hypothesis tests. Performance: 100 images x 1000 findings in ~2s (budget: 10s). All 18 tasks per `.kiro/specs/fleet-analysis/tasks.md` ticked off."
+    spec_path: "specs/fleet-analysis/{requirements.md (11 requirements, P72-P76), design.md (D1-D6), tasks.md (18/18 tasks ticked, 5 waves)}"
+    description: "IMPLEMENTED + APPROVED subsystem at v1.0.0. Library API at `from loki.fleet import analyze_fleet` aggregates pre-produced ImageAnalysisReport instances across an operator-defined fleet into a FleetAnalysisReport. Eight modules under loki/fleet/ (api, aggregation, membership, models, errors, version, cli, __init__). Two membership modes: config-driven YAML and directory-scan. Five aggregation passes: posture distribution, common findings (normalized-title grouping), CVE rollup, outlier detection (median-based, skip <3), worst-image ranking (top-3 by risk_score). CLI: `loki fleet analyze --config|--dir`. Properties P72-P76 covered by Hypothesis tests. Performance: 100 images x 1000 findings in ~2s (budget: 10s). All 18 tasks per `specs/fleet-analysis/tasks.md` ticked off."
     threat_context: "STANDARD"
     public_interface:
       exports: [analyze_fleet, FLEET_VERSION, FleetError, FleetConfigError, FleetInputError, load_from_config, load_from_directory]
@@ -280,7 +280,7 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
 
 ### Lifecycle Transition Rules
 
-The standard WEAVE rules apply. Special note for this retroactively-initialized harness: the v0.1.0 fork records the four shipped subsystems as `IMPLEMENTED` with `spec_status: APPROVED` (because the .kiro/specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline}/ triples are all complete with every task ticked off), the gui / cli / scripts as `IMPLEMENTED` with `spec_status: AD_HOC` (no formal spec; HANDOFF.md and code are the source of truth), and the three pending subsystems as `PROPOSED`. The natural progression for the pending three is:
+The standard WEAVE rules apply. Special note for this retroactively-initialized harness: the v0.1.0 fork records the four shipped subsystems as `IMPLEMENTED` with `spec_status: APPROVED` (because the specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline}/ triples are all complete with every task ticked off), the gui / cli / scripts as `IMPLEMENTED` with `spec_status: AD_HOC` (no formal spec; HANDOFF.md and code are the source of truth), and the three pending subsystems as `PROPOSED`. The natural progression for the pending three is:
 
 - **analysis-engine:** has a stub `requirements.md`. Next move per HANDOFF.md: drive the requirements through DRAFT → TENSION → HARDEN → BIND in a dedicated session, then design + tasks in subsequent sessions.
 - **feeds:** not yet specced. Will be CAST when CVE-population work begins (after analysis-engine ships, since analysis-engine consumes feed signatures).
@@ -567,11 +567,11 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
       verification:
         - "Doc-only round; pytest re-run confirmed 1317 pass / 9 deselected"
-        - "Kiro Spec Format diagnostics on requirements.md, design.md, tasks.md: clean"
+        - "spec format diagnostics on requirements.md, design.md, tasks.md: clean"
       changed_files:
-        - ".kiro/specs/feeds/requirements.md (HARDEN amendments; 1712 -> 1732 lines)"
-        - ".kiro/specs/feeds/design.md (new; 1029 lines, D1-D8)"
-        - ".kiro/specs/feeds/tasks.md (new; 410 lines, 28 tasks, 8 waves)"
+        - "specs/feeds/requirements.md (HARDEN amendments; 1712 -> 1732 lines)"
+        - "specs/feeds/design.md (new; 1029 lines, D1-D8)"
+        - "specs/feeds/tasks.md (new; 410 lines, 28 tasks, 8 waves)"
         - "loom-loki.md (this file; v0.7.0 -> v0.8.0; feeds entry updated; evolution-log entry added)"
 
     - date: "2026-05-29"
@@ -642,7 +642,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         - The Acceptance-Criteria heading discipline (`####
           Acceptance Criteria` on its own line) is preserved
-          throughout; Kiro Spec Format diagnostics on the new
+          throughout; spec format diagnostics on the new
           requirements.md are clean.
 
         Subsystem registry impact:
@@ -675,7 +675,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Verification: doc-only round across the new
         requirements.md and the harness updates. No pytest, mypy,
-        or ruff re-runs needed (no source code touched). Kiro Spec
+        or ruff re-runs needed (no source code touched). spec format
         Format diagnostics on requirements.md: clean. Test baseline
         carried forward unchanged at 1317 pytest pass / 9
         deselected; mypy --strict clean across 240 source files;
@@ -683,10 +683,10 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
       verification:
         - "Doc-only round; no pytest, mypy, or ruff re-runs needed (no source code touched)"
-        - "Kiro Spec Format diagnostics on requirements.md: clean (verified post-write)"
+        - "spec format diagnostics on requirements.md: clean (verified post-write)"
         - "Diagnostics on loom-loki.md: clean (verified post-edit)"
       changed_files:
-        - "loki/.kiro/specs/feeds/requirements.md (new; 1712 lines, 15 EARS, P59-P65, Forward-threads section)"
+        - "loki/specs/feeds/requirements.md (new; 1712 lines, 15 EARS, P59-P65, Forward-threads section)"
         - "loom-loki.md (this file; v0.6.1 -> v0.7.0; feeds subsystem entry updated; OT-LK-002 entry updated; new evolution-log entry added)"
 
     - date: "2026-05-28"
@@ -757,7 +757,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
     - date: "2026-05-28"
       version: "0.6.0"
-      action: "OT-LK-003 classification-cli implementation BIND'd: Waves 1-7 of .kiro/specs/classification-cli/tasks.md ticked off; spec triple transitioned from DRAFT/BIND state to APPROVED + IMPLEMENTED."
+      action: "OT-LK-003 classification-cli implementation BIND'd: Waves 1-7 of specs/classification-cli/tasks.md ticked off; spec triple transitioned from DRAFT/BIND state to APPROVED + IMPLEMENTED."
       what_changed:
         - "All 25 tasks across 7 waves implemented and verified"
         - "loki/classify_helpers.py created (private-helper module per D1 + D6)"
@@ -786,7 +786,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         Spec triple work landed across one extended session against
         the project's "spec drafting is its own conversation" rule.
         Operator deviation explicitly approved and recorded in
-        `.kiro/specs/classification-cli/requirements-tension-pass.md`
+        `specs/classification-cli/requirements-tension-pass.md`
         HARDEN footer.
 
         Round-by-round:
@@ -821,7 +821,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
            verbatim.
 
         3. TENSION pass — sibling artifact at
-           `.kiro/specs/classification-cli/requirements-tension-pass.md`.
+           `specs/classification-cli/requirements-tension-pass.md`.
            Walked the DRAFT against five upstream artifacts
            (the live classification library, model layer,
            upstream classification spec, existing CLI handlers,
@@ -881,7 +881,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
            questions Q1-Q3 deferred to task-breakdown.
            Diagnostics: 2 non-blocking property warnings
            matching the pattern accepted on
-           `.kiro/specs/analysis-engine/design.md`.
+           `specs/analysis-engine/design.md`.
 
         6. Subsystem registry — new entry `classify-cli` added
            to §2 with status PROPOSED + spec_status DRAFT
@@ -913,10 +913,10 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Changed files in this round:
 
-        - `.kiro/specs/classification-cli/.config.kiro` (new — generated by subagent at DRAFT)
-        - `.kiro/specs/classification-cli/requirements.md` (new — DRAFT, then HARDEN edits applied in same session)
-        - `.kiro/specs/classification-cli/requirements-tension-pass.md` (new — TENSION pass artifact + HARDEN status footer)
-        - `.kiro/specs/classification-cli/design.md` (new — BIND'd same session)
+        - `specs/classification-cli/`
+        - `specs/classification-cli/requirements.md` (new — DRAFT, then HARDEN edits applied in same session)
+        - `specs/classification-cli/requirements-tension-pass.md` (new — TENSION pass artifact + HARDEN status footer)
+        - `specs/classification-cli/design.md` (new — BIND'd same session)
         - `loom-loki.md` (this file; v0.4.0 → v0.5.0; new subsystem entry; new evolution log entry; OT-LK-003 status; new OT-LK-006)
 
         Next round: tasks BIND for classification-cli in a
@@ -942,10 +942,10 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         - 8 subsystems registered. Four are IMPLEMENTED with
           APPROVED specs (models, extraction, baseline,
-          classification — the .kiro/specs/ triples are complete
+          classification — the specs/ triples are complete
           with every task ticked off). Three are IMPLEMENTED with
           AD_HOC specs (gui, cli, scripts — HANDOFF.md and code
-          are the source of truth; no .kiro/specs/ triples).
+          are the source of truth; no specs/ triples).
           Three are PROPOSED with no implementation yet
           (analysis-engine has a stub requirements.md;
           feeds and fleet-analysis are not yet specced).
@@ -965,7 +965,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         - OT-LK-001: analysis-engine spec drafting. The natural
           next major piece of work. Requirements stub exists at
-          .kiro/specs/analysis-engine/requirements.md.
+          specs/analysis-engine/requirements.md.
           HANDOFF.md is explicit that spec drafting is its own
           conversation, not merged with implementation in a
           single session. The persisted contracts
@@ -1013,12 +1013,12 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
       notes: |
         TENSION pass on the analysis-engine requirements.md DRAFT
         completed and recorded as a sibling artifact at
-        `.kiro/specs/analysis-engine/requirements-tension-pass.md`.
+        `specs/analysis-engine/requirements-tension-pass.md`.
 
         The DRAFT requirements doc is structurally complete: 1163
         lines, 20 EARS-style requirements with `#### Acceptance
         Criteria` blocks, no TODO / OPEN-QUESTION markers,
-        diagnostics-clean per the Kiro Spec Format checker. The
+        diagnostics-clean per the spec format checker. The
         TENSION pass walked the doc end-to-end against the model
         layer (`loki/models/{firmware,classification,baseline,
         analysis,reports,config,enums}.py`) and the four shipped
@@ -1082,7 +1082,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Changed files in this round:
 
-        - loki/.kiro/specs/analysis-engine/requirements-tension-pass.md (new).
+        - loki/specs/analysis-engine/requirements-tension-pass.md (new).
         - loki/loom-loki.md (this file, version 0.1.0 -> 0.1.1; OT-LK-001 status updated; analysis-engine subsystem entry's spec_path and description refreshed).
 
     - date: "2026-05-28"
@@ -1099,7 +1099,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         all in R17.5 between current rules 3 and 4) and G4-B
         (escalate `classification_mismatch: CRITICAL` to
         `PostureRating.COMPROMISED`) per the TENSION pass review
-        note at `.kiro/specs/analysis-engine/requirements-tension-
+        note at `specs/analysis-engine/requirements-tension-
         pass.md`. M1 (rename target_component_id) and M2 (explicit
         max-Composite_Score wording) skipped as cosmetic; the
         existing wording is unambiguous-via-R9.10 and reads
@@ -1161,8 +1161,8 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Changed files in this round:
 
-        - loki/.kiro/specs/analysis-engine/requirements.md (1163 -> 1194 lines; three HARDEN edits to R15.1, R17.4, R17.5).
-        - loki/.kiro/specs/analysis-engine/requirements-tension-pass.md (HARDEN-amendment record appended).
+        - loki/specs/analysis-engine/requirements.md (1163 -> 1194 lines; three HARDEN edits to R15.1, R17.4, R17.5).
+        - loki/specs/analysis-engine/requirements-tension-pass.md (HARDEN-amendment record appended).
         - loki/loom-loki.md (this file, version 0.1.1 -> 0.2.0; analysis-engine spec_status DRAFT -> APPROVED; OT-LK-001 status updated to BIND'd; v0.2.0 evolution-log entry added).
         - loki/STATE.md (harness version + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1301,7 +1301,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Changed files in this round:
 
-        - loki/.kiro/specs/analysis-engine/design.md (new; 1211 lines, 11 top-level sections, Properties P43-P52, D1-D8 deferred decisions).
+        - loki/specs/analysis-engine/design.md (new; 1211 lines, 11 top-level sections, Properties P43-P52, D1-D8 deferred decisions).
         - loki/loom-loki.md (this file, version 0.2.0 -> 0.3.0; analysis-engine subsystem spec_path + description refreshed; OT-LK-001 status moved to "tasks.md is the next session"; v0.3.0 evolution-log entry added).
         - loki/STATE.md (harness version + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1411,7 +1411,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         Changed files in this round:
 
-        - loki/.kiro/specs/analysis-engine/tasks.md (new; 568 lines, 28 tasks across 8 waves, JSON wave manifest + cadence + notes).
+        - loki/specs/analysis-engine/tasks.md (new; 568 lines, 28 tasks across 8 waves, JSON wave manifest + cadence + notes).
         - loki/loom-loki.md (this file, version 0.3.0 -> 0.3.1; analysis-engine subsystem spec_path + description refreshed; OT-LK-001 status moved to "spec triple complete; implementation phase opens"; v0.3.1 evolution-log entry added).
         - loki/STATE.md (harness version + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1540,7 +1540,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/loki/models/config.py (AnalysisConfig extended with three fields + uuid + MatchStrategy imports).
         - loki/loki/models/analysis.py (FindingEvidence extended with deviation_score field).
         - loki/tests/analysis/{__init__,conftest,test_version,test_match_strategy_enum,test_analysis_config_extension,test_finding_evidence_extension,test_errors,test_timing}.py (8 new test files).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 1-7 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 1-7 ticked off).
         - loki/loom-loki.md (this file, version 0.3.1 -> 0.3.2; OT-LK-001 status updated; v0.3.2 evolution-log entry added).
         - loki/STATE.md (harness version + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1648,7 +1648,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/loki/analysis/pairing.py (populated; was empty docstring shell).
         - loki/loki/analysis/findings.py (partially populated — derive_finding_id helper, sentinel constant, make_cancellation_marker constructor; per-category emitters still pending Wave 5).
         - loki/tests/analysis/{test_matching,test_pairing,test_finding_id,test_cancellation_marker}.py (4 new test files, 64 tests total).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 8-10 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 8-10 ticked off).
         - loki/loom-loki.md (this file, version 0.3.2 -> 0.3.3; OT-LK-001 status updated; v0.3.3 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1738,7 +1738,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/loki/analysis/scoring.py (populated; was empty docstring shell).
         - loki/loki/analysis/posture.py (populated; was empty docstring shell).
         - loki/tests/analysis/{test_scoring,test_posture}.py (2 new test files, ~55 tests total).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 11-12 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 11-12 ticked off).
         - loki/loom-loki.md (this file, version 0.3.3 -> 0.3.4; OT-LK-001 status updated; v0.3.4 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1861,7 +1861,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/loki/analysis/scoring.py (security_direction + mutability_change helpers loosened from StrEnum-typed to str-typed parameters per the model layer's AxisClassification.label: str typing).
         - loki/tests/analysis/_helpers.py (new shared fixture builder module; underscore-prefixed so pytest does not collect).
         - loki/tests/analysis/{test_findings_classification_mismatch,test_findings_signature_regression,test_findings_unexpected_component,test_findings_missing_required,test_findings_classification_gap}.py (5 new test files, 56 tests total).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 13-17 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 13-17 ticked off).
         - loki/loom-loki.md (this file, version 0.3.4 -> 0.3.5; OT-LK-001 status updated; v0.3.5 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -1987,7 +1987,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/loki/analysis/api.py (populated; was empty docstring shell).
         - loki/loki/analysis/__init__.py (re-exports analyze_image, AnalysisProgressEvent, and the two type aliases).
         - loki/tests/analysis/{test_report,test_pipeline,test_api}.py (3 new test files, ~48 tests total).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 18-20 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 18-20 ticked off).
         - loki/loom-loki.md (this file, version 0.3.5 -> 0.3.6; OT-LK-001 status updated; v0.3.6 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -2130,7 +2130,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         - loki/tests/analysis/test_properties.py (new; ~470 lines, Hypothesis property suite for P43-P52).
         - loki/tests/analysis/test_performance.py (new; ~140 lines, slow-marker R18.1 budget validation).
         - loki/tests/test_analysis_smoke.py (new; ~190 lines, end-to-end smoke triggering all six finding categories).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 21-26 ticked off).
+        - loki/specs/analysis-engine/tasks.md (tasks 21-26 ticked off).
         - loki/loom-loki.md (this file, version 0.3.6 -> 0.3.7; OT-LK-001 status updated; v0.3.7 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -2210,7 +2210,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
         - analysis-engine: lifecycle_stage PROPOSED -> IMPLEMENTED.
           spec_status remains APPROVED. Subsystem ships at v1.0.0.
-          All 28 tasks per .kiro/specs/analysis-engine/tasks.md
+          All 28 tasks per specs/analysis-engine/tasks.md
           ticked off.
 
         Open thread state changes:
@@ -2255,7 +2255,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
         Changed files in this round:
 
         - loki/README.md (Status table; new ## Analysis engine section ~150 lines; Repository layout updated with analysis/ subtrees; ## Verification at the current checkpoint refreshed; ## Next moves re-prioritized).
-        - loki/.kiro/specs/analysis-engine/tasks.md (tasks 27-28 ticked off; full task list now 28/28 complete).
+        - loki/specs/analysis-engine/tasks.md (tasks 27-28 ticked off; full task list now 28/28 complete).
         - loki/loom-loki.md (this file, version 0.3.7 -> 0.4.0; §1 metadata; §2 analysis-engine subsystem entry refreshed at IMPLEMENTED; §3 dependency graph materialized 3 new edges; OT-LK-001 status CLOSED; v0.4.0 evolution-log entry added).
         - loki/STATE.md (harness version + verification gates + OT-LK-001 status updated; subsystem count now 5 IMPLEMENTED+APPROVED).
         - Sloptropy/STATE_AND_NEXT_STEPS.md (workspace-level loki entry refreshed).
@@ -2268,7 +2268,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
       title: "analysis-engine implementation (CLOSED — all 28 tasks complete; subsystem IMPLEMENTED at v1.0.0)"
       status: "CLOSED — 2026-05-28; analysis-engine v1.0.0 ships at IMPLEMENTED + APPROVED"
       priority: "CLOSED"
-      notes: "Spec triple BIND'd 2026-05-28. All eight implementation waves landed same day (Wave 1 skeleton, Wave 2 foundations, Wave 3 matching + pairing + finding_id helper + Cancellation_Marker, Wave 4 six scoring helpers + PostureRating six-rule cascade, Wave 5 five per-category emitters, Wave 6 report assembly + AnalysisPipeline + analyze_image, Wave 7 cross-cutting tests covering Properties P43-P52 + R18.1 perf + e2e smoke, Wave 8 docs refresh + lifecycle transition + final gate). Final checkpoint: 1211 pytest pass / 8 deselected; mypy --strict clean across 217 source files; ruff lint + format clean; offscreen GUI smoke clean; R18.1 perf budget 0.10s actual vs 5s budget. The complete library API (`from loki.analysis import analyze_image`) is feature-complete and fully tested. The closed task list is preserved at `.kiro/specs/analysis-engine/tasks.md` (28/28 ticked). subsystem state: lifecycle_stage IMPLEMENTED, spec_status APPROVED. Next OT for the analysis surface: GUI analysis view (paired with OT-LK-004's GUI classification view), CLI analysis subcommand (OT-LK-006 if/when opened), or analyze_fleet (deferred — needs feeds first). Workspace observation continues: .venv/bin/* shebangs are stale; workaround is .venv/bin/python -m <tool>; this should be rebuilt at some point but is not blocking."
+      notes: "Spec triple BIND'd 2026-05-28. All eight implementation waves landed same day (Wave 1 skeleton, Wave 2 foundations, Wave 3 matching + pairing + finding_id helper + Cancellation_Marker, Wave 4 six scoring helpers + PostureRating six-rule cascade, Wave 5 five per-category emitters, Wave 6 report assembly + AnalysisPipeline + analyze_image, Wave 7 cross-cutting tests covering Properties P43-P52 + R18.1 perf + e2e smoke, Wave 8 docs refresh + lifecycle transition + final gate). Final checkpoint: 1211 pytest pass / 8 deselected; mypy --strict clean across 217 source files; ruff lint + format clean; offscreen GUI smoke clean; R18.1 perf budget 0.10s actual vs 5s budget. The complete library API (`from loki.analysis import analyze_image`) is feature-complete and fully tested. The closed task list is preserved at `specs/analysis-engine/tasks.md` (28/28 ticked). subsystem state: lifecycle_stage IMPLEMENTED, spec_status APPROVED. Next OT for the analysis surface: GUI analysis view (paired with OT-LK-004's GUI classification view), CLI analysis subcommand (OT-LK-006 if/when opened), or analyze_fleet (deferred — needs feeds first). Workspace observation continues: .venv/bin/* shebangs are stale; workaround is .venv/bin/python -m <tool>; this should be rebuilt at some point but is not blocking."
 
     - id: "OT-LK-002"
       title: "CVE feed integration (CLOSED — feeds + consumer-wiring + fleet all shipped)"
@@ -2435,7 +2435,7 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
       title: "Classification CLI subcommand (CLOSED — implementation v1.0.0 ships at IMPLEMENTED + APPROVED)"
       status: "CLOSED — 2026-05-28; classify-cli v1.0.0 ships at IMPLEMENTED + APPROVED"
       priority: "CLOSED"
-      notes: "HANDOFF.md candidate move #2. Requirements DRAFT → TENSION → HARDEN landed 2026-05-28; design BIND landed same session against project's `spec drafting is its own conversation` rule (operator-approved deviation, recorded in `.kiro/specs/classification-cli/requirements-tension-pass.md` HARDEN footer). Spec triple at `.kiro/specs/classification-cli/{requirements.md, design.md, requirements-tension-pass.md, tasks.md}`. The 12 banked design decisions D1-D12 from CAST conversation plus two operator-added flags (`--debug`, `--summary-only`) are documented in requirements.md; the seven design defaults D1-D7 plus three open questions Q1-Q3 are documented in design.md (D-defaults all baked in at implementation; Q1-Q3 pinned by implementation choices). Properties P53-P58 with explicit P59 handoff to the next subsystem. Subsystem registered as `classify-cli` in §2; lifecycle_stage IMPLEMENTED, spec_status APPROVED. v1.0.0 shipped: ~310 source lines added (loki/classify_helpers.py + loki/cli.py classify additions); ~104 new tests across 22 test modules under tests/classify_cli/; final pytest count 1317; final mypy --strict file count 240. R11.1 wrapper-only timing budget validated at <200ms. Closed via the Wave 6 implementation BIND that materialized the three classify-cli dependency-graph edges (classify-cli → models, classify-cli → classification, cli → classify-cli)."
+      notes: "HANDOFF.md candidate move #2. Requirements DRAFT → TENSION → HARDEN landed 2026-05-28; design BIND landed same session against project's `spec drafting is its own conversation` rule (operator-approved deviation, recorded in `specs/classification-cli/requirements-tension-pass.md` HARDEN footer). Spec triple at `specs/classification-cli/{requirements.md, design.md, requirements-tension-pass.md, tasks.md}`. The 12 banked design decisions D1-D12 from CAST conversation plus two operator-added flags (`--debug`, `--summary-only`) are documented in requirements.md; the seven design defaults D1-D7 plus three open questions Q1-Q3 are documented in design.md (D-defaults all baked in at implementation; Q1-Q3 pinned by implementation choices). Properties P53-P58 with explicit P59 handoff to the next subsystem. Subsystem registered as `classify-cli` in §2; lifecycle_stage IMPLEMENTED, spec_status APPROVED. v1.0.0 shipped: ~310 source lines added (loki/classify_helpers.py + loki/cli.py classify additions); ~104 new tests across 22 test modules under tests/classify_cli/; final pytest count 1317; final mypy --strict file count 240. R11.1 wrapper-only timing budget validated at <200ms. Closed via the Wave 6 implementation BIND that materialized the three classify-cli dependency-graph edges (classify-cli → models, classify-cli → classification, cli → classify-cli)."
 
     - id: "OT-LK-004"
       title: "GUI classification view"
@@ -2469,7 +2469,7 @@ The standard WEAVE Selvage Rules (S-001 through S-014) apply unchanged. See `~/S
 
 ## 7. The Warp — Finalized Interfaces
 
-The Warp captures the eight registered subsystems' approved public interfaces. The full type signatures live in the .kiro/specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline}/ triples plus the source under loki/. The Loom Warp here reflects the contracts at v0.1.0:
+The Warp captures the eight registered subsystems' approved public interfaces. The full type signatures live in the specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline}/ triples plus the source under loki/. The Loom Warp here reflects the contracts at v0.1.0:
 
 ### models
 
@@ -2520,7 +2520,7 @@ result = extract_firmware(Path("/firmware/image.rom"), config)
 # result.duration_seconds is a float.
 ```
 
-Property invariants per `.kiro/specs/extraction-pipeline/design.md §Properties`:
+Property invariants per `specs/extraction-pipeline/design.md §Properties`:
 
 1. Round-trip: same binary + same config → bit-equal manifest minus timestamps.
 2. Component-ID determinism: `uuid5(LOKI_NAMESPACE, ...)` is bit-equal across runs and hosts.
@@ -2568,7 +2568,7 @@ result = classify_components(
 # for the same component_id.
 ```
 
-Property invariants per `.kiro/specs/classification-pipeline/design.md §Properties` (P33–P42, ten properties):
+Property invariants per `specs/classification-pipeline/design.md §Properties` (P33–P42, ten properties):
 
 - Determinism: same inputs + same rule registry → same ClassificationRecord set.
 - R5.6 dual-record contract.
@@ -2684,8 +2684,8 @@ loki/tests/                   → covers all subsystems (897 pytest tests, 6 des
 The standard WEAVE session-management guidance applies. Loki-specific notes:
 
 - **Reset cadence:** the harness covers eight registered subsystems with a strict DAG and four shipped Tier 1–2 spec triples. A single Shuttle session can address an end-to-end cross-subsystem change for the IMPLEMENTED set without exhausting context. The PROPOSED subsystems (analysis-engine especially) likely need multi-session decomposition: HANDOFF.md is explicit that spec drafting is its own conversation, not merged with implementation. The classification spec was drafted across multiple turns of a recent conversation and the implementation followed across a half-dozen wave-sized sessions; the same cadence is the path of least surprise for analysis-engine.
-- **Implementation tool note:** the project has historically used manual implementation with Cursor / Claude Code rather than a Tier 3 spec-driven tool. This Loom does not change that; future Shuttle cycles output specs that operators implement by hand against the existing `.kiro/specs/` triples.
-- **Spec-versioning relationship:** `.kiro/specs/loki-data-models/`, `.kiro/specs/extraction-pipeline/`, `.kiro/specs/baseline-persistence/`, and `.kiro/specs/classification-pipeline/` are the authoritative pre-Loom artefacts. They are not displaced by this harness; the harness's §2 / §7 reflects them. The pending `.kiro/specs/analysis-engine/requirements.md` stub is the seed for the next major Shuttle cycle.
+- **Implementation tool note:** the project has historically used manual implementation with Cursor / Claude Code rather than a Tier 3 spec-driven tool. This Loom does not change that; future Shuttle cycles output specs that operators implement by hand against the existing `specs/` triples.
+- **Spec-versioning relationship:** `specs/loki-data-models/`, `specs/extraction-pipeline/`, `specs/baseline-persistence/`, and `specs/classification-pipeline/` are the authoritative pre-Loom artefacts. They are not displaced by this harness; the harness's §2 / §7 reflects them. The pending `specs/analysis-engine/requirements.md` stub is the seed for the next major Shuttle cycle.
 
 ---
 

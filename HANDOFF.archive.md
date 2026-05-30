@@ -14,7 +14,7 @@ lives at `/Users/daborond/Sloptropy/loki/`. **Five subsystems have
 shipped**: model layer, extraction pipeline, baseline persistence
 (GLEIPNIR), classification pipeline, and now the **analysis engine**.
 The analysis-engine spec triple is fully closed out — all 28 tasks
-across all 8 waves of `.kiro/specs/analysis-engine/tasks.md` are
+across all 8 waves of `specs/analysis-engine/tasks.md` are
 ticked off. The README has been refreshed with a dedicated
 `## Analysis engine` section. The Loom harness is at v0.4.0 and
 records the lifecycle transition PROPOSED → IMPLEMENTED.
@@ -36,19 +36,19 @@ Five subsystems are complete and end-to-end-tested:
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums plus the
   new `MatchStrategy` enum, eight modules. Strict validation on
   construction, lossless JSON / YAML round-trip. Spec at
-  `.kiro/specs/loki-data-models/`.
+  `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
   microcode update blobs. UEFI volume decompression and
   inner-component emission. Spec at
-  `.kiro/specs/extraction-pipeline/`. **All 28 tasks ticked.**
+  `specs/extraction-pipeline/`. **All 28 tasks ticked.**
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes, mtime/size
   concurrency check, typed exception hierarchy, `loki baseline
   list/show/import/export/delete` CLI surface, GUI integration
   with background-thread loading plus per-file progress and
-  cancellation. Spec at `.kiro/specs/baseline-persistence/`.
+  cancellation. Spec at `specs/baseline-persistence/`.
   **All 22 tasks ticked.**
 - **`loki/classification/`** — classification pipeline. Turns
   `ExtractedComponent` records into validated `ClassificationRecord`
@@ -56,7 +56,7 @@ Five subsystems are complete and end-to-end-tested:
   security_posture, mutability). Public entry point: ``from
   loki.classification import classify_components``. R5.6
   dual-record contract honored. Spec at
-  `.kiro/specs/classification-pipeline/`. **All 25 tasks ticked.**
+  `specs/classification-pipeline/`. **All 25 tasks ticked.**
 - **`loki/analysis/`** — analysis engine. Turns a sequence of
   `ClassificationRecord` instances plus a `BaselineRegistry` into
   a validated `ImageAnalysisReport`. Public entry point: ``from
@@ -64,17 +64,17 @@ Five subsystems are complete and end-to-end-tested:
   R17.5 post-HARDEN PostureRating six-rule cascade with G3-A
   catch-all + G4-B CRITICAL escalation. All ten Properties P43-P52
   covered by Hypothesis tests. Spec at
-  `.kiro/specs/analysis-engine/`. **All 28 tasks ticked.**
+  `specs/analysis-engine/`. **All 28 tasks ticked.**
 
 | Subsystem | Spec | Implementation |
 | - | - | - |
-| `loki/models/` | DONE — `.kiro/specs/loki-data-models/` | DONE |
+| `loki/models/` | DONE — `specs/loki-data-models/` | DONE |
 | `loki/gui/` | None — handoff plan | DONE (scope B + GLEIPNIR + threaded extraction + threaded baseline load with progress/cancel) |
 | `loki/cli.py` | Spec dir empty | `loki gui`, `loki extract --progress`, `loki baseline list/show/import/export/delete` |
-| Extraction pipeline | DONE — `.kiro/specs/extraction-pipeline/` | DONE — all 28 tasks |
-| Baseline management (GLEIPNIR) | DONE — `.kiro/specs/baseline-persistence/` | DONE — all 22 tasks |
-| Classification pipeline | DONE — `.kiro/specs/classification-pipeline/` | DONE — all 25 tasks |
-| Analysis engine | DONE — `.kiro/specs/analysis-engine/` | DONE — all 28 tasks |
+| Extraction pipeline | DONE — `specs/extraction-pipeline/` | DONE — all 28 tasks |
+| Baseline management (GLEIPNIR) | DONE — `specs/baseline-persistence/` | DONE — all 22 tasks |
+| Classification pipeline | DONE — `specs/classification-pipeline/` | DONE — all 25 tasks |
+| Analysis engine | DONE — `specs/analysis-engine/` | DONE — all 28 tasks |
 | Feeds (NVD, implant rules) | Not specced | Not started |
 | Fleet analysis | Models exist | Engine not started |
 
@@ -290,7 +290,7 @@ blocking implementation.
   every contract is enforced by at least one test.
 - **The analysis engine has eight design defaults baked into the
   implementation.** Documented as D1-D8 in
-  `.kiro/specs/analysis-engine/design.md` § "Deferred decisions
+  `specs/analysis-engine/design.md` § "Deferred decisions
   and open questions":
   - D1: free function `analyze_image`, not class method (mirrors
     classification).
@@ -306,7 +306,7 @@ blocking implementation.
     takes the stricter side.
   - D7: Properties P43-P52, ten properties.
   - D8: five Property descriptions (P44, P45, P46, P49, P52) use
-    multi-paragraph or bullet-list structure; the Kiro Spec Format
+    multi-paragraph or bullet-list structure; the spec format
     checker emits five non-blocking warnings on the design.md;
     explicitly accepted to preserve structural clarity.
 - **The R17.5 PostureRating mapping is a six-rule cascade** with
@@ -329,7 +329,7 @@ blocking implementation.
   a third timestamp anywhere in the report, plan the lockstep
   before BIND.
 - **The TENSION pass review note** at
-  `.kiro/specs/analysis-engine/requirements-tension-pass.md`
+  `specs/analysis-engine/requirements-tension-pass.md`
   records four substantive gaps (G1-G4) and three wording items
   (M1-M3) that the operator decided in flight. Operator chose
   G3-A (catch-all DEGRADED rule) and G4-B (escalate
@@ -367,7 +367,7 @@ loki/                                 # /Users/daborond/Sloptropy/loki/
 ├── STATE.md                          # WEAVE-style state + next-steps doc
 ├── loom-loki.md                      # WEAVE/Loom Tier 3 harness; v0.4.0
 ├── pyproject.toml
-├── .kiro/
+├── specs/
 │   └── specs/
 │       ├── loki-data-models/         # DONE
 │       ├── extraction-pipeline/      # DONE — 28/28 tasks
@@ -435,10 +435,10 @@ loki/                                 # /Users/daborond/Sloptropy/loki/
   IMPLEMENTED."
 - `STATE.md` — current state + next-steps doc. Cross-references
   the workspace-level `../STATE_AND_NEXT_STEPS.md`.
-- `.kiro/specs/analysis-engine/{requirements,design,tasks}.md` —
+- `specs/analysis-engine/{requirements,design,tasks}.md` —
   the most recent reference for spec format. Mirror the structure
   when drafting the feeds spec.
-- `.kiro/specs/analysis-engine/requirements-tension-pass.md` —
+- `specs/analysis-engine/requirements-tension-pass.md` —
   records the TENSION + HARDEN audit trail. The pattern is worth
   mirroring for any future spec that needs a TENSION pass before
   HARDEN.
@@ -528,7 +528,7 @@ lives at `/Users/daborond/Projects/loki/`. **Four subsystems have
 shipped**: model layer, extraction pipeline, baseline persistence
 (GLEIPNIR), and the classification pipeline. The classification
 spec is fully closed out — all 25 tasks across all 8 waves of
-`.kiro/specs/classification-pipeline/tasks.md` are ticked off.
+`specs/classification-pipeline/tasks.md` are ticked off.
 The README has been refreshed to reflect the new status, the new
 test counts, and the new repository layout.
 
@@ -543,13 +543,13 @@ Four subsystems are complete and end-to-end-tested:
 
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums, eight
   modules. Strict validation on construction, lossless JSON / YAML
-  round-trip. Spec at `.kiro/specs/loki-data-models/`.
+  round-trip. Spec at `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
   microcode update blobs. UEFI volume decompression and
   inner-component emission. Spec at
-  `.kiro/specs/extraction-pipeline/`. **All 28 tasks ticked off in
+  `specs/extraction-pipeline/`. **All 28 tasks ticked off in
   `tasks.md`**.
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes, mtime/size
@@ -557,7 +557,7 @@ Four subsystems are complete and end-to-end-tested:
   list/show/import/export/delete` CLI surface, GUI integration
   with background-thread loading plus per-file progress and
   cancellation (R2.8-R2.10, R7.10-R7.11). Spec at
-  `.kiro/specs/baseline-persistence/`. **All 22 tasks ticked off in
+  `specs/baseline-persistence/`. **All 22 tasks ticked off in
   `tasks.md`**.
 - **`loki/classification/`** — classification pipeline. Turns
   `ExtractedComponent` records into validated
@@ -567,17 +567,17 @@ Four subsystems are complete and end-to-end-tested:
   classify_components``. R5.6 dual-record contract honored
   (missing-bytes components emit both a record and an error for
   the same `component_id`). Spec at
-  `.kiro/specs/classification-pipeline/`. **All 25 tasks ticked
+  `specs/classification-pipeline/`. **All 25 tasks ticked
   off in `tasks.md`**.
 
 | Subsystem | Spec | Implementation |
 | - | - | - |
-| `loki/models/` | DONE — `.kiro/specs/loki-data-models/` | DONE |
+| `loki/models/` | DONE — `specs/loki-data-models/` | DONE |
 | `loki/gui/` | None — handoff plan | DONE (scope B + GLEIPNIR + threaded extraction + threaded baseline load with progress/cancel) |
 | `loki/cli.py` | Spec dir empty | `loki gui`, `loki extract --progress`, `loki baseline list/show/import/export/delete` |
-| Extraction pipeline | DONE — `.kiro/specs/extraction-pipeline/` | DONE — all 28 tasks |
-| Baseline management (GLEIPNIR) | DONE — `.kiro/specs/baseline-persistence/` | DONE — all 22 tasks |
-| Classification pipeline | DONE — `.kiro/specs/classification-pipeline/` | DONE — all 25 tasks |
+| Extraction pipeline | DONE — `specs/extraction-pipeline/` | DONE — all 28 tasks |
+| Baseline management (GLEIPNIR) | DONE — `specs/baseline-persistence/` | DONE — all 22 tasks |
+| Classification pipeline | DONE — `specs/classification-pipeline/` | DONE — all 25 tasks |
 | Analysis engine | Not specced | Not started |
 | Feeds (NVD, implant rules) | Not specced | Not started |
 | Fleet analysis | Models exist | Engine not started |
@@ -737,7 +737,7 @@ loki/
 ├── HANDOFF.md                       # this doc
 ├── HANDOFF.archive.md               # Wave 7 handoff archived; older entries below
 ├── pyproject.toml
-├── .kiro/
+├── specs/
 │   └── specs/
 │       ├── loki-data-models/        # DONE
 │       ├── extraction-pipeline/     # DONE — 28/28 tasks
@@ -777,7 +777,7 @@ loki/
   the persisted contracts the analysis engine subsystem will
   produce (`FindingRecord`, `DeviationScore`,
   `ImageAnalysisReport`).
-- `.kiro/specs/loki-data-models/` and the three completed
+- `specs/loki-data-models/` and the three completed
   subsystem specs — structural templates for the analysis
   engine spec when its drafting conversation starts.
 - `loki/extraction/` and `loki/baseline/` and
@@ -865,13 +865,13 @@ Three subsystems are complete and end-to-end-tested:
 
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums, eight
   modules. Strict validation on construction, lossless JSON / YAML
-  round-trip. Spec at `.kiro/specs/loki-data-models/`.
+  round-trip. Spec at `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
   microcode update blobs. UEFI volume decompression and
   inner-component emission. Spec at
-  `.kiro/specs/extraction-pipeline/`. **All 28 tasks ticked off in
+  `specs/extraction-pipeline/`. **All 28 tasks ticked off in
   `tasks.md`**.
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes, mtime/size
@@ -879,7 +879,7 @@ Three subsystems are complete and end-to-end-tested:
   list/show/import/export/delete` CLI surface, GUI integration
   with background-thread loading plus per-file progress and
   cancellation (R2.8-R2.10, R7.10-R7.11). Spec at
-  `.kiro/specs/baseline-persistence/`. **All 22 tasks ticked off in
+  `specs/baseline-persistence/`. **All 22 tasks ticked off in
   `tasks.md`**.
 
 A fourth subsystem is fully specced; Waves 1-7 of
@@ -888,7 +888,7 @@ implementation are landed:
 - **`loki/classification/`** — classification pipeline. Turns
   `ExtractedComponent` records into validated
   `ClassificationRecord` instances along the four taxonomic
-  axes. Spec at `.kiro/specs/classification-pipeline/`. **All
+  axes. Spec at `specs/classification-pipeline/`. **All
   three docs drafted**. **Waves 1-7 complete (23/25 tasks)**:
   end-to-end implementation, focused behavioral tests, and
   the full cross-cutting test layer. Properties 33-42
@@ -900,12 +900,12 @@ implementation are landed:
 
 | Subsystem | Spec | Implementation |
 | - | - | - |
-| `loki/models/` | DONE — `.kiro/specs/loki-data-models/` | DONE |
+| `loki/models/` | DONE — `specs/loki-data-models/` | DONE |
 | `loki/gui/` | None — handoff plan | DONE (scope B + GLEIPNIR + threaded extraction + threaded baseline load with progress/cancel) |
 | `loki/cli.py` | Spec dir empty | `loki gui`, `loki extract --progress`, `loki baseline list/show/import/export/delete` |
-| Extraction pipeline | DONE — `.kiro/specs/extraction-pipeline/` | DONE — all 28 tasks ticked, plus UEFI decompression + inner-component emission |
-| Baseline management (GLEIPNIR) | DONE — `.kiro/specs/baseline-persistence/` | DONE — all 22 tasks ticked, plus optional progress/cancel callbacks (R2.8-R2.10, R7.10-R7.11) |
-| **Classification pipeline** | **DONE** — `.kiro/specs/classification-pipeline/` | **Waves 1-7 complete** — 23/25 tasks; full implementation + every test layer except final docs / gate (Wave 8) |
+| Extraction pipeline | DONE — `specs/extraction-pipeline/` | DONE — all 28 tasks ticked, plus UEFI decompression + inner-component emission |
+| Baseline management (GLEIPNIR) | DONE — `specs/baseline-persistence/` | DONE — all 22 tasks ticked, plus optional progress/cancel callbacks (R2.8-R2.10, R7.10-R7.11) |
+| **Classification pipeline** | **DONE** — `specs/classification-pipeline/` | **Waves 1-7 complete** — 23/25 tasks; full implementation + every test layer except final docs / gate (Wave 8) |
 | Analysis engine | Not specced | Not started |
 | Feeds (NVD, implant rules) | Not specced | Not started |
 | Fleet analysis | Models exist | Engine not started |
@@ -994,7 +994,7 @@ Three subsystems are complete and end-to-end-tested:
 
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums, eight
   modules. Strict validation on construction, lossless JSON / YAML
-  round-trip. Spec at `.kiro/specs/loki-data-models/`.
+  round-trip. Spec at `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
@@ -1007,7 +1007,7 @@ Three subsystems are complete and end-to-end-tested:
   payload's hash. R5.8 holds: failed decompression records a typed
   error and the outer component still carries `raw_hash` over the
   on-disk compressed bytes. Spec at
-  `.kiro/specs/extraction-pipeline/`. **All 28 tasks ticked off in
+  `specs/extraction-pipeline/`. **All 28 tasks ticked off in
   `tasks.md`**.
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes, mtime/size
@@ -1015,7 +1015,7 @@ Three subsystems are complete and end-to-end-tested:
   list/show/import/export/delete` CLI surface, GUI integration with
   background-thread loading **plus per-file progress and
   cancellation** (R2.8-R2.10, R7.10-R7.11). Spec at
-  `.kiro/specs/baseline-persistence/`. **All 22 tasks ticked off in
+  `specs/baseline-persistence/`. **All 22 tasks ticked off in
   `tasks.md`**.
 
 A fourth subsystem is mid-spec:
@@ -1023,17 +1023,17 @@ A fourth subsystem is mid-spec:
 - **`loki/classification/`** — classification pipeline. Turns
   `ExtractedComponent` records into validated `ClassificationRecord`
   instances along the four taxonomic axes. Spec at
-  `.kiro/specs/classification-pipeline/`. **`requirements.md`
+  `specs/classification-pipeline/`. **`requirements.md`
   drafted, design and tasks not yet started.** No implementation
   code exists.
 
 | Subsystem | Spec | Implementation |
 | - | - | - |
-| `loki/models/` | DONE — `.kiro/specs/loki-data-models/` | DONE |
+| `loki/models/` | DONE — `specs/loki-data-models/` | DONE |
 | `loki/gui/` | None — handoff plan | DONE (scope B + GLEIPNIR + threaded extraction + threaded baseline load with progress/cancel) |
 | `loki/cli.py` | Spec dir empty | `loki gui`, `loki extract --progress`, `loki baseline list/show/import/export/delete` |
-| Extraction pipeline | DONE — `.kiro/specs/extraction-pipeline/` | DONE — all 28 tasks ticked, plus UEFI decompression + inner-component emission |
-| Baseline management (GLEIPNIR) | DONE — `.kiro/specs/baseline-persistence/` | DONE — all 22 tasks ticked, plus optional progress/cancel callbacks (R2.8-R2.10, R7.10-R7.11) |
+| Extraction pipeline | DONE — `specs/extraction-pipeline/` | DONE — all 28 tasks ticked, plus UEFI decompression + inner-component emission |
+| Baseline management (GLEIPNIR) | DONE — `specs/baseline-persistence/` | DONE — all 22 tasks ticked, plus optional progress/cancel callbacks (R2.8-R2.10, R7.10-R7.11) |
 | **Classification pipeline** | **REQUIREMENTS DRAFTED** — design phase next | Not started |
 | Analysis engine | Not specced | Not started |
 | Feeds (NVD, implant rules) | Not specced | Not started |
@@ -1344,7 +1344,7 @@ loki/
 ├── HANDOFF.md                       # this doc
 ├── HANDOFF.archive.md               # prior handoffs
 ├── pyproject.toml
-├── .kiro/
+├── specs/
 │   └── specs/
 │       ├── loki-data-models/        # DONE
 │       ├── extraction-pipeline/     # DONE — 28/28 tasks ticked
@@ -1409,16 +1409,16 @@ loki/
   dropped or replaced; doc-only follow-up.
 - `HANDOFF.archive.md` — prior handoffs across the project's
   history.
-- `.kiro/specs/classification-pipeline/requirements.md` — the most
+- `specs/classification-pipeline/requirements.md` — the most
   recently drafted spec. 13 EARS requirements. Eleven design
   decisions resolved interactively with the user. Pass-2 analyze
   closed every blocker concern; only N2 / N3 minor style items
   remain.
-- `.kiro/specs/baseline-persistence/` — most-recently-completed
+- `specs/baseline-persistence/` — most-recently-completed
   spec, including the new R2.8-R2.10 + R7.10-R7.11 acceptance
   criteria for the optional progress + cancel callbacks. Useful as
   a structural template for `classification-pipeline/design.md`.
-- `.kiro/specs/extraction-pipeline/` — the other complete spec.
+- `specs/extraction-pipeline/` — the other complete spec.
   `design.md` is now consistent with the shipped inner-component
   emission code.
 - `loki/models/classification.py` and `loki/models/enums.py` — the
@@ -1515,7 +1515,7 @@ codename GLEIPNIR) is half-implemented.
 
 ## DECISIONS LOCKED (from the spec)
 
-The full spec lives at `.kiro/specs/baseline-persistence/`. Three
+The full spec lives at `specs/baseline-persistence/`. Three
 documents, all clean (`getDiagnostics` reports zero issues for each):
 
 - `requirements.md` — 10 requirements, 75 EARS-formatted acceptance
@@ -1763,12 +1763,12 @@ parallel.
 
 ## FILES TO READ FIRST
 
-- `.kiro/specs/baseline-persistence/requirements.md` — the
+- `specs/baseline-persistence/requirements.md` — the
   approved requirements
-- `.kiro/specs/baseline-persistence/design.md` — the approved
+- `specs/baseline-persistence/design.md` — the approved
   design (especially the Components and Interfaces and
   Architecture sections)
-- `.kiro/specs/baseline-persistence/tasks.md` — task breakdown
+- `specs/baseline-persistence/tasks.md` — task breakdown
   with file references
 - `loki/baseline/store.py` — the `BaselineStore` implementation as
   it stands at the end of Task 11
@@ -1856,7 +1856,7 @@ You are continuing on the **Loki firmware analysis platform**, which lives at `/
   - **ruff check / ruff format clean**
   - `pyproject.toml` exists with dev extras (`pytest`, `hypothesis`, `mypy`, `ruff`, `types-PyYAML`)
   - `README.md` exists at the repo root (recently written, references "next moves" including CLI / extraction / etc.)
-  - Spec dirs: `.kiro/specs/loki-data-models/` (filled), `.kiro/specs/cli/` (empty), `.kiro/specs/baseline/` (empty), `.kiro/specs/models/` (filled — overlaps with loki-data-models)
+  - Spec dirs: `specs/loki-data-models/` (filled), `specs/cli/` (empty), `specs/baseline/` (empty), `specs/models/` (filled — overlaps with loki-data-models)
   - **Repo has zero git commits.** Everything is staged and uncommitted. Don't run `git commit` — the user explicitly said skip git in the prior session. They will commit when ready.
 
 ## Build plan (DO IN THIS ORDER)
@@ -1866,7 +1866,7 @@ You are continuing on the **Loki firmware analysis platform**, which lives at `/
 - `cat pyproject.toml` to confirm current deps (Pydantic 2.7+, pyyaml; dev: pytest, hypothesis, mypy, ruff, types-PyYAML)
 - `cat README.md` to align README updates at the end
 - `ls loki/models/` to confirm the model files
-- `cat .kiro/specs/loki-data-models/design.md` only if you need to refresh the model field shapes
+- `cat specs/loki-data-models/design.md` only if you need to refresh the model field shapes
 
 ### Step 1 — Add PyQt6 to pyproject.toml
 
@@ -2060,7 +2060,7 @@ Three subsystems are complete and end-to-end-tested:
 
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums, eight
   modules. Strict validation on construction, lossless JSON / YAML
-  round-trip. Spec at `.kiro/specs/loki-data-models/`.
+  round-trip. Spec at `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
@@ -2073,13 +2073,13 @@ Three subsystems are complete and end-to-end-tested:
   derived from the decompressed payload's hash. R5.8 holds: failed
   decompression records a typed error and the outer component still
   carries `raw_hash` over the on-disk compressed bytes. Spec at
-  `.kiro/specs/extraction-pipeline/`.
+  `specs/extraction-pipeline/`.
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes,
   mtime/size concurrency check, typed exception hierarchy,
   `loki baseline list/show/import/export/delete` CLI surface, GUI
   integration with background-thread loading. Spec at
-  `.kiro/specs/baseline-persistence/`. **All 22 tasks ticked off in
+  `specs/baseline-persistence/`. **All 22 tasks ticked off in
   `tasks.md`**.
 
 > **[Partial recovery — original text from this entry's tail is
@@ -2117,7 +2117,7 @@ lives at `/Users/daborond/Sloptropy/loki/`. **Five subsystems have
 shipped**: model layer, extraction pipeline, baseline persistence
 (GLEIPNIR), classification pipeline, and now the **analysis engine**.
 The analysis-engine spec triple is fully closed out — all 28 tasks
-across all 8 waves of `.kiro/specs/analysis-engine/tasks.md` are
+across all 8 waves of `specs/analysis-engine/tasks.md` are
 ticked off. The README has been refreshed with a dedicated
 `## Analysis engine` section. The Loom harness is at v0.4.0 and
 records the lifecycle transition PROPOSED → IMPLEMENTED.
@@ -2139,19 +2139,19 @@ Five subsystems are complete and end-to-end-tested:
 - **`loki/models/`** — Pydantic v2 data models, 14 StrEnums plus the
   new `MatchStrategy` enum, eight modules. Strict validation on
   construction, lossless JSON / YAML round-trip. Spec at
-  `.kiro/specs/loki-data-models/`.
+  `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. v1 covers Intel
   Flash Descriptor (full-flash) images, UEFI PI firmware volumes,
   raw FFS blobs, UEFI capsules, PCI option ROMs, Intel CPU
   microcode update blobs. UEFI volume decompression and
   inner-component emission. Spec at
-  `.kiro/specs/extraction-pipeline/`. **All 28 tasks ticked.**
+  `specs/extraction-pipeline/`. **All 28 tasks ticked.**
 - **`loki/baseline/`** — GLEIPNIR persistence layer. YAML-on-disk,
   one human-readable file per baseline, atomic writes, mtime/size
   concurrency check, typed exception hierarchy, `loki baseline
   list/show/import/export/delete` CLI surface, GUI integration
   with background-thread loading plus per-file progress and
-  cancellation. Spec at `.kiro/specs/baseline-persistence/`.
+  cancellation. Spec at `specs/baseline-persistence/`.
   **All 22 tasks ticked.**
 - **`loki/classification/`** — classification pipeline. Turns
   `ExtractedComponent` records into validated `ClassificationRecord`
@@ -2159,7 +2159,7 @@ Five subsystems are complete and end-to-end-tested:
   security_posture, mutability). Public entry point: ``from
   loki.classification import classify_components``. R5.6
   dual-record contract honored. Spec at
-  `.kiro/specs/classification-pipeline/`. **All 25 tasks ticked.**
+  `specs/classification-pipeline/`. **All 25 tasks ticked.**
 - **`loki/analysis/`** — analysis engine. Turns a sequence of
   `ClassificationRecord` instances plus a `BaselineRegistry` into
   a validated `ImageAnalysisReport`. Public entry point: ``from
@@ -2167,17 +2167,17 @@ Five subsystems are complete and end-to-end-tested:
   R17.5 post-HARDEN PostureRating six-rule cascade with G3-A
   catch-all + G4-B CRITICAL escalation. All ten Properties P43-P52
   covered by Hypothesis tests. Spec at
-  `.kiro/specs/analysis-engine/`. **All 28 tasks ticked.**
+  `specs/analysis-engine/`. **All 28 tasks ticked.**
 
 | Subsystem | Spec | Implementation |
 | - | - | - |
-| `loki/models/` | DONE — `.kiro/specs/loki-data-models/` | DONE |
+| `loki/models/` | DONE — `specs/loki-data-models/` | DONE |
 | `loki/gui/` | None — handoff plan | DONE (scope B + GLEIPNIR + threaded extraction + threaded baseline load with progress/cancel) |
 | `loki/cli.py` | Spec dir empty | `loki gui`, `loki extract --progress`, `loki baseline list/show/import/export/delete` |
-| Extraction pipeline | DONE — `.kiro/specs/extraction-pipeline/` | DONE — all 28 tasks |
-| Baseline management (GLEIPNIR) | DONE — `.kiro/specs/baseline-persistence/` | DONE — all 22 tasks |
-| Classification pipeline | DONE — `.kiro/specs/classification-pipeline/` | DONE — all 25 tasks |
-| Analysis engine | DONE — `.kiro/specs/analysis-engine/` | DONE — all 28 tasks |
+| Extraction pipeline | DONE — `specs/extraction-pipeline/` | DONE — all 28 tasks |
+| Baseline management (GLEIPNIR) | DONE — `specs/baseline-persistence/` | DONE — all 22 tasks |
+| Classification pipeline | DONE — `specs/classification-pipeline/` | DONE — all 25 tasks |
+| Analysis engine | DONE — `specs/analysis-engine/` | DONE — all 28 tasks |
 | Feeds (NVD, implant rules) | Not specced | Not started |
 | Fleet analysis | Models exist | Engine not started |
 
@@ -2393,7 +2393,7 @@ blocking implementation.
   every contract is enforced by at least one test.
 - **The analysis engine has eight design defaults baked into the
   implementation.** Documented as D1-D8 in
-  `.kiro/specs/analysis-engine/design.md` § "Deferred decisions
+  `specs/analysis-engine/design.md` § "Deferred decisions
   and open questions":
   - D1: free function `analyze_image`, not class method (mirrors
     classification).
@@ -2409,7 +2409,7 @@ blocking implementation.
     takes the stricter side.
   - D7: Properties P43-P52, ten properties.
   - D8: five Property descriptions (P44, P45, P46, P49, P52) use
-    multi-paragraph or bullet-list structure; the Kiro Spec Format
+    multi-paragraph or bullet-list structure; the spec format
     checker emits five non-blocking warnings on the design.md;
     explicitly accepted to preserve structural clarity.
 - **The R17.5 PostureRating mapping is a six-rule cascade** with
@@ -2432,7 +2432,7 @@ blocking implementation.
   a third timestamp anywhere in the report, plan the lockstep
   before BIND.
 - **The TENSION pass review note** at
-  `.kiro/specs/analysis-engine/requirements-tension-pass.md`
+  `specs/analysis-engine/requirements-tension-pass.md`
   records four substantive gaps (G1-G4) and three wording items
   (M1-M3) that the operator decided in flight. Operator chose
   G3-A (catch-all DEGRADED rule) and G4-B (escalate
@@ -2470,7 +2470,7 @@ loki/                                 # /Users/daborond/Sloptropy/loki/
 ├── STATE.md                          # WEAVE-style state + next-steps doc
 ├── loom-loki.md                      # WEAVE/Loom Tier 3 harness; v0.4.0
 ├── pyproject.toml
-├── .kiro/
+├── specs/
 │   └── specs/
 │       ├── loki-data-models/         # DONE
 │       ├── extraction-pipeline/      # DONE — 28/28 tasks
@@ -2538,10 +2538,10 @@ loki/                                 # /Users/daborond/Sloptropy/loki/
   IMPLEMENTED."
 - `STATE.md` — current state + next-steps doc. Cross-references
   the workspace-level `../STATE_AND_NEXT_STEPS.md`.
-- `.kiro/specs/analysis-engine/{requirements,design,tasks}.md` —
+- `specs/analysis-engine/{requirements,design,tasks}.md` —
   the most recent reference for spec format. Mirror the structure
   when drafting the feeds spec.
-- `.kiro/specs/analysis-engine/requirements-tension-pass.md` —
+- `specs/analysis-engine/requirements-tension-pass.md` —
   records the TENSION + HARDEN audit trail. The pattern is worth
   mirroring for any future spec that needs a TENSION pass before
   HARDEN.

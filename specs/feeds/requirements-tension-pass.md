@@ -11,7 +11,7 @@
 
 ## How to read this note
 
-The DRAFT is structurally complete (15 EARS-style requirements, all with `#### Acceptance Criteria` blocks, a Forward-threads section explicitly enumerating seven deferred items, no TODO / OPEN-QUESTION markers, diagnostics-clean per the Kiro Spec Format checker). The TENSION pass walked the DRAFT end-to-end against:
+The DRAFT is structurally complete (15 EARS-style requirements, all with `#### Acceptance Criteria` blocks, a Forward-threads section explicitly enumerating seven deferred items, no TODO / OPEN-QUESTION markers, diagnostics-clean per the spec format checker). The TENSION pass walked the DRAFT end-to-end against:
 
 - the existing `FeedsConfig` model in `loki/models/config.py` (four fields today: `nvd_url`, `update_interval`, `cache_path`, `implant_rules_path`);
 - the upstream `ClassificationRecord.cve_matches` contract (R6 of classification-pipeline; default empty list);

@@ -1,7 +1,7 @@
 # loki/ — LOKI — State & Next Steps
 
 **Last updated:** 2026-05-28
-**Methodology lens:** WEAVE / Loom Tier 3 (Full Methodology). Harness initialized 2026-05-28 at `loki/loom-loki.md` v0.1.0; same-day eleven rounds took it to v0.4.0 (TENSION pass v0.1.1 → requirements HARDEN v0.2.0 → design BIND v0.3.0 → tasks BIND v0.3.1 → Wave 1+2 v0.3.2 → Wave 3 v0.3.3 → Wave 4 v0.3.4 → Wave 5 v0.3.5 → Wave 6 v0.3.6 → Wave 7 v0.3.7 → Wave 8 final-gate BIND v0.4.0). All five spec triples now live at `.kiro/specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline,analysis-engine}/`.
+**Methodology lens:** WEAVE / Loom Tier 3 (Full Methodology). Harness initialized 2026-05-28 at `loki/loom-loki.md` v0.1.0; same-day eleven rounds took it to v0.4.0 (TENSION pass v0.1.1 → requirements HARDEN v0.2.0 → design BIND v0.3.0 → tasks BIND v0.3.1 → Wave 1+2 v0.3.2 → Wave 3 v0.3.3 → Wave 4 v0.3.4 → Wave 5 v0.3.5 → Wave 6 v0.3.6 → Wave 7 v0.3.7 → Wave 8 final-gate BIND v0.4.0). All five spec triples now live at `specs/{loki-data-models,extraction-pipeline,baseline-persistence,classification-pipeline,analysis-engine}/`.
 **Workspace context:** see `../STATE_AND_NEXT_STEPS.md` for cross-project view.
 
 ---
@@ -9,7 +9,7 @@
 ## State
 
 - **Type:** Firmware analysis platform. Pulls firmware images, extracts components, classifies along four taxonomic axes, compares to baselines, scores deviations, **emits structured analysis reports**.
-- **Workspace root:** `loki/`. Python 3.12, package `loki`. Extensive `.venv/`, `.kiro/specs/`.
+- **Workspace root:** `loki/`. Python 3.12, package `loki`. Extensive `.venv/`, `specs/`.
 - **Implementation maturity:** **Nine IMPLEMENTED + APPROVED subsystems** (`models`, `extraction`, `baseline` aka GLEIPNIR, `classification`, `analysis-engine`, `classify-cli`, `feeds`, `consumer-wiring`, `fleet-analysis`); two IMPLEMENTED + AD_HOC subsystems (`gui`, `cli`); one IMPLEMENTED + AD_HOC smoke-harness (`scripts`).
 - **Verification gates (current checkpoint after analysis-cli lands):** `pytest -q` 1655 pass / 13 deselected; `mypy --strict` clean across 303 source files; `ruff check` clean; `ruff format --check` clean; offscreen GUI smoke clean. All 13 slow-marker performance tests pass (R11.1 classification, R11.1 classify-cli, R11.3, R18.1, R12.1-R12.3 feeds, fleet R10.2, plus extraction-pipeline performance gates).
 - **Recent evidence:** `loki/HANDOFF.md` describes pre-analysis state (still says "next major piece of work is the analysis engine"); now stale and due for refresh. Archive at `loki/HANDOFF.archive.md` records past handoffs.

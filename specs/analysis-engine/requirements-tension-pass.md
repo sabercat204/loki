@@ -10,7 +10,7 @@
 
 ## How to read this note
 
-The requirements doc is structurally complete (20 EARS-style requirements, all with `#### Acceptance Criteria` blocks, no TODO / OPEN-QUESTION markers, diagnostics-clean per the Kiro Spec Format checker). The TENSION pass walked the doc end-to-end against the existing model layer (`loki/models/{firmware,classification,baseline,analysis,reports,config,enums}.py`) and the four shipped subsystems' patterns (extraction, baseline, classification, models).
+The requirements doc is structurally complete (20 EARS-style requirements, all with `#### Acceptance Criteria` blocks, no TODO / OPEN-QUESTION markers, diagnostics-clean per the spec format checker). The TENSION pass walked the doc end-to-end against the existing model layer (`loki/models/{firmware,classification,baseline,analysis,reports,config,enums}.py`) and the four shipped subsystems' patterns (extraction, baseline, classification, models).
 
 The findings are split into:
 
@@ -217,8 +217,8 @@ The amended `requirements.md` is BIND. The next session opens design.md drafting
 
 **Files touched in this round:**
 
-- `loki/.kiro/specs/analysis-engine/requirements.md` (1163 → 1194 lines; three HARDEN edits to R15.1, R17.4, R17.5).
-- `loki/.kiro/specs/analysis-engine/requirements-tension-pass.md` (this file; HARDEN-amendment record appended).
+- `loki/specs/analysis-engine/requirements.md` (1163 → 1194 lines; three HARDEN edits to R15.1, R17.4, R17.5).
+- `loki/specs/analysis-engine/requirements-tension-pass.md` (this file; HARDEN-amendment record appended).
 - `loki/loom-loki.md` (v0.1.1 → v0.2.0; analysis-engine subsystem `spec_status: DRAFT` → `APPROVED`; OT-LK-001 status updated; new evolution-log entry).
 - `loki/STATE.md` (harness version + OT-LK-001 status updated).
 - `STATE_AND_NEXT_STEPS.md` (workspace-level loki entry refreshed).

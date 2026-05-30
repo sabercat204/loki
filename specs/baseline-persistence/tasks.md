@@ -425,7 +425,7 @@ should be intact.
 - [x] 21. README and Status table updates
 
    - Update the **Status** table in `README.md` to mark the
-     baseline-persistence subsystem `DONE — .kiro/specs/baseline-persistence/`
+     baseline-persistence subsystem `DONE — specs/baseline-persistence/`
      and `DONE` on implementation.
    - Add a `## Baseline persistence (GLEIPNIR)` section between
      the Extraction pipeline and Development sections,

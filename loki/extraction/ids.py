@@ -2,7 +2,7 @@
 
 The two helpers in this module are the *single source of truth* for
 the determinism contract (Properties 19 and 20 of
-``.kiro/specs/extraction-pipeline/design.md``). Anything that touches
+``specs/extraction-pipeline/design.md``). Anything that touches
 the payload string format risks producing different UUIDs for the same
 content, so the format is locked here and tested via Hypothesis in
 ``tests/extraction/test_ids.py``.
