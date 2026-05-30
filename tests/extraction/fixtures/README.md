@@ -31,7 +31,7 @@ real-world binaries on your own machine:
    `request.config.getoption("--real-fixture")` or the env var; they
    skip when neither is set so CI runs stay green.
 
-Future work tracked under `.kiro/specs/extraction-pipeline/design.md`
+Future work tracked under `specs/extraction-pipeline/design.md`
 "What's deliberately not tested" lists public corpora (linux-firmware,
 firmware analysis CTF binaries, etc.) suitable for ad-hoc validation.
 

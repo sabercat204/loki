@@ -7,7 +7,7 @@ The Feeds subsystem turns NVD-derived CVE snapshots and a curated implant-rule s
 
 The subsystem is the project's first surface with **outbound network egress** and the first surface that performs **trust-anchor verification** on external content. Its threat context is FULL (D8-B). It is **synchronous**, **single-threaded**, **deterministic** on the lookup paths (same Cache_DB + same query ⇒ byte-equal result), and **honest** about what it cannot do — it does not run extraction, does not run classification, does not call the analysis engine, does not persist any record outside its own SQLite cache, and does not render findings.
 
-The shape mirrors the project's subsystem pattern: a small public surface at `loki.feeds`, a typed exception hierarchy at `loki/feeds/errors.py`, a `FeedRegistry` class as the library entry point, a `loki feeds refresh` CLI subcommand, AST + dynamic no-leakage audits (six in total for FULL threat context), and a designated set of correctness properties (P59-P68). Each non-trivial design choice cites the acceptance criteria it satisfies (e.g. `R3.4` = Requirement 3 acceptance criterion 4 from `.kiro/specs/feeds/requirements.md`).
+The shape mirrors the project's subsystem pattern: a small public surface at `loki.feeds`, a typed exception hierarchy at `loki/feeds/errors.py`, a `FeedRegistry` class as the library entry point, a `loki feeds refresh` CLI subcommand, AST + dynamic no-leakage audits (six in total for FULL threat context), and a designated set of correctness properties (P59-P68). Each non-trivial design choice cites the acceptance criteria it satisfies (e.g. `R3.4` = Requirement 3 acceptance criterion 4 from `specs/feeds/requirements.md`).
 
 ## Goals and non-goals
 

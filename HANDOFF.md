@@ -23,33 +23,33 @@ green. The Loom harness is at v0.9.0.
 Nine subsystems are complete and end-to-end-tested:
 
 - **`loki/models/`** — Pydantic v2 data models. Spec at
-  `.kiro/specs/loki-data-models/`.
+  `specs/loki-data-models/`.
 - **`loki/extraction/`** — extraction pipeline. All 28 tasks.
-  Spec at `.kiro/specs/extraction-pipeline/`.
+  Spec at `specs/extraction-pipeline/`.
 - **`loki/baseline/`** — GLEIPNIR persistence layer. All 22 tasks.
-  Spec at `.kiro/specs/baseline-persistence/`.
+  Spec at `specs/baseline-persistence/`.
 - **`loki/classification/`** — classification pipeline. All 25 tasks.
-  Spec at `.kiro/specs/classification-pipeline/`.
+  Spec at `specs/classification-pipeline/`.
 - **`loki/analysis/`** — analysis engine. All 28 tasks.
-  Spec at `.kiro/specs/analysis-engine/`.
+  Spec at `specs/analysis-engine/`.
 - **`loki/classify_helpers.py` + classify-cli** — `loki classify`
   CLI subcommand. All 25 tasks.
-  Spec at `.kiro/specs/classification-cli/`.
+  Spec at `specs/classification-cli/`.
 - **`loki/feeds/`** — NVD CVE feed + implant-rule lookup. All 28
   tasks. Library API at `from loki.feeds import FeedRegistry`.
   CLI: `loki feeds refresh/status`. Six FULL-context security
-  audits. Properties P59-P68. Spec at `.kiro/specs/feeds/`.
+  audits. Properties P59-P68. Spec at `specs/feeds/`.
 - **Consumer wiring** — bridges feeds into classification
   (`cve_matches` population) and analysis (`matched_cve`,
   `cve_introduced`, `cve_score_bump`). All 10 tasks.
   `loki classify --feeds-config`. Properties P69-P71.
-  Spec at `.kiro/specs/consumer-wiring/`.
+  Spec at `specs/consumer-wiring/`.
 
 - **`loki/fleet/`** — fleet analysis engine. All 18 tasks.
   Library API at `from loki.fleet import analyze_fleet`.
   CLI: `loki fleet analyze --config|--dir`. Five aggregation
   passes. Properties P72-P76.
-  Spec at `.kiro/specs/fleet-analysis/`.
+  Spec at `specs/fleet-analysis/`.
 
 | Subsystem | Spec | Implementation |
 | - | - | - |

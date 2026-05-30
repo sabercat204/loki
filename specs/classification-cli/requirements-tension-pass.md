@@ -1,13 +1,13 @@
 
 # Requirements TENSION pass — classification-cli
 
-**Spec:** `.kiro/specs/classification-cli/requirements.md` (DRAFT, 2026-05-28)
+**Spec:** `specs/classification-cli/requirements.md` (DRAFT, 2026-05-28)
 **Pass date:** 2026-05-28
 **Pass type:** End-to-end TENSION on the DRAFT before HARDEN.
 **Scope:** Walk every requirement against the upstream contracts (the
 classification library at `loki/classification/`, the model layer at
 `loki/models/`, the upstream classification spec at
-`.kiro/specs/classification-pipeline/requirements.md`, the existing CLI
+`specs/classification-pipeline/requirements.md`, the existing CLI
 patterns at `loki/cli.py`) and surface gaps, citation drift, and
 spec deviations before HARDEN.
 
@@ -520,4 +520,4 @@ Two new tracking items surfaced and recorded in the spec's Introduction:
 
 Design BIND followed in the same session, against the project's "spec drafting is its own conversation" rule. Operator deviation is intentional and recorded.
 
-`design.md` lives at `.kiro/specs/classification-cli/design.md`. Diagnostics: 2 non-blocking warnings on the Properties section (false positives — same pattern accepted on `analysis-engine/design.md`).
+`design.md` lives at `specs/classification-cli/design.md`. Diagnostics: 2 non-blocking warnings on the Properties section (false positives — same pattern accepted on `analysis-engine/design.md`).

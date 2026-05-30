@@ -562,7 +562,7 @@ extraction work assumes a clean baseline.
 - [x] 27. README and HANDOFF updates
 
   - Update the **Status** table in `README.md` to mark the
-    extraction pipeline `DONE — .kiro/specs/extraction-pipeline/`
+    extraction pipeline `DONE — specs/extraction-pipeline/`
     on the spec column and `DONE` (or partial) on the
     implementation column, with a link to the new
     `loki.extraction` module.

@@ -1,6 +1,6 @@
 """Tests for deterministic component / error id derivation.
 
-Covers task 4 of .kiro/specs/extraction-pipeline/tasks.md and the
+Covers task 4 of specs/extraction-pipeline/tasks.md and the
 implementation half of Properties 19 and 20 from the design doc.
 """
 

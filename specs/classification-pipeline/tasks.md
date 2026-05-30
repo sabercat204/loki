@@ -848,7 +848,7 @@ and baseline-persistence subsystems are all intact.
 - [x] 24. Update README and Status
 
   - Update the **Status** table in `README.md` to mark the
-    classification-pipeline subsystem `DONE — .kiro/specs/classification-pipeline/`
+    classification-pipeline subsystem `DONE — specs/classification-pipeline/`
     on the spec column and `DONE` on the implementation
     column.
   - Add a `## Classification pipeline` section between the

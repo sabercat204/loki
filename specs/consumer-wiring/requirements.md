@@ -17,7 +17,7 @@ consumer integration as out-of-scope for its own spec:
 > engine then surfaces those values via its existing
 > `FindingEvidence.matched_cve` and
 > `DeviationScore.cve_introduced` channels."
-> — `.kiro/specs/feeds/requirements.md`, Non-goals
+> — `specs/feeds/requirements.md`, Non-goals
 
 Classification pipeline R6 contracts `cve_matches` as always `[]`
 in v1. Analysis engine R9.9 contracts `cve_introduced` as always

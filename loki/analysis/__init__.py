@@ -5,7 +5,7 @@ Produces ``FindingRecord`` and ``DeviationScore`` instances by comparing
 public entry point ``analyze_image`` exposed once Wave 6 lands; this is
 the v0.1.0 scaffold (Wave 1 of the implementation plan).
 
-See ``.kiro/specs/analysis-engine/{requirements,design,tasks}.md`` for the
+See ``specs/analysis-engine/{requirements,design,tasks}.md`` for the
 full contract.
 """
 

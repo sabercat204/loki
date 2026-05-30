@@ -7,7 +7,7 @@ The Analysis Engine turns a sequence of `ClassificationRecord` instances produce
 
 The subsystem is **synchronous**, **single-threaded**, **deterministic** (same Target_Records + same Matched_Baseline + same `AnalysisConfig` + same Analysis_Engine version ⇒ bit-equal report modulo the explicit `ImageAnalysisReport.timestamp` and the cooperative-cancellation `evidence.raw_indicators[0]` value), and **honest** about what it cannot do — config / lookup / input failures raise typed exceptions before any finding emission, signature handling reads `signature_info.present` without verifying signers, CVE matching is explicitly out of scope (`cve_matches` carried into the engine is always empty per classification R6 and v1 of this engine never populates `evidence.matched_cve`), persistence is the caller's responsibility, and the analysis CLI / GUI integration surfaces are reserved for separate specs.
 
-The shape mirrors `extraction-pipeline`, `baseline-persistence`, and `classification-pipeline`: a small public surface in `loki.analysis`, a typed exception hierarchy at `loki/analysis/errors.py`, an `AnalysisProgressEvent` dataclass, an AST audit pinning side-channel imports, a logging audit pinning the Forbidden_Leakage_Field_Set, and a designated timing module insulating `time.monotonic()` access from determinism checks. Each non-trivial design choice cites the acceptance criteria it satisfies (e.g. `R7.4` = Requirement 7 acceptance criterion 4 from `.kiro/specs/analysis-engine/requirements.md`).
+The shape mirrors `extraction-pipeline`, `baseline-persistence`, and `classification-pipeline`: a small public surface in `loki.analysis`, a typed exception hierarchy at `loki/analysis/errors.py`, an `AnalysisProgressEvent` dataclass, an AST audit pinning side-channel imports, a logging audit pinning the Forbidden_Leakage_Field_Set, and a designated timing module insulating `time.monotonic()` access from determinism checks. Each non-trivial design choice cites the acceptance criteria it satisfies (e.g. `R7.4` = Requirement 7 acceptance criterion 4 from `specs/analysis-engine/requirements.md`).
 
 ## Goals and non-goals
 
@@ -1170,7 +1170,7 @@ Ten properties, picking up from classification's P33–P42. Matches the project'
 
 ### D8 — Multi-paragraph Property descriptions accepted
 
-Five Property descriptions (P44, P45, P46, P49, P52) use multi-paragraph or bullet-list structure between the property header and the `**Validates: Requirements ...**` line. The Kiro Spec Format checker emits five non-blocking warnings for this; the classification pipeline's design.md uses single-paragraph descriptions throughout and emits no warnings.
+Five Property descriptions (P44, P45, P46, P49, P52) use multi-paragraph or bullet-list structure between the property header and the `**Validates: Requirements ...**` line. The spec format checker emits five non-blocking warnings for this; the classification pipeline's design.md uses single-paragraph descriptions throughout and emits no warnings.
 
 **Why retained:** the structure makes the contract clearer at a glance. P44's two paragraphs cover the success-resolution case and the miss-resolution case as parallel bullets. P46's bulleted post-conditions enumerate the four invariants the scoring helpers must satisfy; collapsing them into prose would obscure them. P49's monotonicity-clause is a substantive second paragraph, not a stylistic flourish. P52's seven-bullet list of Cancellation_Marker fields is the cleanest way to enumerate the contract.
 

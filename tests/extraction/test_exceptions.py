@@ -1,6 +1,6 @@
 """Tests for the extraction subsystem's exception hierarchy.
 
-Covers task 3 of .kiro/specs/extraction-pipeline/tasks.md.
+Covers task 3 of specs/extraction-pipeline/tasks.md.
 """
 
 from __future__ import annotations
