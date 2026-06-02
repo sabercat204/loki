@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from loki.baseline.errors import BaselineStorageUnwritableError
 from loki.baseline.schema import SCHEMA_VERSION
 from loki.baseline.store import BaselineStore, LoadResult
 from loki.models import BaselineConfig
+from tests.baseline.conftest import running_as_root
 
 
 def _config(path: Path) -> BaselineConfig:
@@ -46,7 +46,7 @@ def test_constructor_reuses_existing_directory(tmp_path: Path) -> None:
     reason="POSIX permission bits don't apply on Windows",
 )
 @pytest.mark.skipif(
-    os.geteuid() == 0,
+    running_as_root(),
     reason="root bypasses permission checks; can't simulate unwritable directory",
 )
 def test_constructor_raises_when_directory_unwritable(tmp_path: Path) -> None:
@@ -73,7 +73,7 @@ def test_constructor_raises_when_parent_unwritable(tmp_path: Path) -> None:
     parent.mkdir(mode=0o500)
     try:
         target = parent / "child"
-        if os.geteuid() == 0:
+        if running_as_root():
             pytest.skip("root bypasses permission checks")
         with pytest.raises(BaselineStorageUnwritableError):
             BaselineStore(_config(target))

@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import errno
 import logging
-import os
 import sys
 import uuid
 from datetime import UTC, datetime
@@ -29,6 +28,7 @@ from loki.baseline.naming import filename_for
 from loki.baseline.schema import SCHEMA_VERSION
 from loki.baseline.store import MAX_FILE_SIZE, BaselineStore
 from loki.models import BaselineConfig, BaselineRecord
+from tests.baseline.conftest import running_as_root
 from tests.baseline.fixtures import synthetic_baseline
 
 _FIXED_TIMESTAMP = datetime(2026, 5, 23, 12, 0, 0, tzinfo=UTC)
@@ -321,7 +321,7 @@ def test_delete_raises_when_file_already_gone(tmp_path: Path) -> None:
     reason="POSIX permission bits don't apply on Windows",
 )
 @pytest.mark.skipif(
-    os.geteuid() == 0,
+    running_as_root(),
     reason="root bypasses permission checks",
 )
 def test_delete_raises_storage_unwritable_on_permission_error(

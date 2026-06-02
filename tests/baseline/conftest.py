@@ -13,11 +13,35 @@ count so determinism tests can vary the manifest depth (R9.2-R9.4).
 
 from __future__ import annotations
 
+import os
+import sys
+
 import pytest
 from hypothesis import strategies as st
 
 from loki.models import BaselineRecord
 from tests.baseline.fixtures import synthetic_baseline
+
+
+def running_as_root() -> bool:
+    """Return ``True`` if the current process has root privileges.
+
+    Used by permission-check tests that need to skip when the test
+    runner is root (root bypasses POSIX file-mode permission checks
+    so the unwritable-directory simulation is a no-op).
+
+    On Windows, ``os.geteuid`` is unavailable and the underlying
+    permission model differs; the affected tests are POSIX-specific
+    and are skipped on Windows by returning ``True`` here so the
+    ``skipif`` decorator fires.
+    """
+    if sys.platform == "win32":
+        return True
+    geteuid = getattr(os, "geteuid", None)
+    if geteuid is None:
+        return True
+    uid: int = geteuid()
+    return uid == 0
 
 
 @pytest.fixture()
