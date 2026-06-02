@@ -93,8 +93,29 @@ class FleetAnalysisView(QWidget):
                 common_table.setItem(idx, 0, QTableWidgetItem(finding.severity.value))
                 common_table.setItem(idx, 1, QTableWidgetItem(finding.category))
                 common_table.setItem(idx, 2, QTableWidgetItem(finding.title))
-            layout.addWidget(common_table, 1)
-        else:
+            layout.addWidget(common_table)
+
+        if report.recommended_actions:
+            layout.addWidget(
+                QLabel(f"<b>Recommended actions ({len(report.recommended_actions)})</b>")
+            )
+            actions_table = QTableWidget(len(report.recommended_actions), 3, self)
+            actions_table.setHorizontalHeaderLabels(["Action type", "Description", "Reference"])
+            av = actions_table.verticalHeader()
+            assert av is not None
+            av.setVisible(False)
+            actions_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+            ah = actions_table.horizontalHeader()
+            assert ah is not None
+            ah.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            ah.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            ah.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            for idx, action in enumerate(report.recommended_actions):
+                actions_table.setItem(idx, 0, QTableWidgetItem(action.action_type))
+                actions_table.setItem(idx, 1, QTableWidgetItem(action.description))
+                actions_table.setItem(idx, 2, QTableWidgetItem(action.reference or "—"))
+            layout.addWidget(actions_table, 1)
+        elif not report.common_findings:
             layout.addStretch(1)
 
     @property
