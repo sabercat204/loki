@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import errno
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -29,6 +28,7 @@ import pytest
 from loki.baseline.errors import BaselineStorageUnwritableError
 from loki.baseline.store import BaselineStore
 from loki.models import BaselineConfig
+from tests.baseline.conftest import running_as_root
 from tests.baseline.fixtures import synthetic_baseline
 
 
@@ -155,7 +155,7 @@ def test_load_logs_warning_for_each_edge_case(
     reason="POSIX permission bits don't apply on Windows",
 )
 @pytest.mark.skipif(
-    os.geteuid() == 0,
+    running_as_root(),
     reason="root bypasses permission checks; can't simulate read-only directory",
 )
 def test_save_into_readonly_directory_raises_storage_unwritable(
@@ -187,7 +187,7 @@ def test_save_into_readonly_directory_raises_storage_unwritable(
     reason="POSIX permission bits don't apply on Windows",
 )
 @pytest.mark.skipif(
-    os.geteuid() == 0,
+    running_as_root(),
     reason="root bypasses permission checks",
 )
 def test_save_into_readonly_directory_leaves_no_temp_file(tmp_path: Path) -> None:

@@ -23,6 +23,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Linux Qt runtime libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libegl1 \
+            libgl1 \
+            libxkbcommon-x11-0 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-sync1 \
+            libxcb-xfixes0 \
+            libxcb-xinerama0 \
+            libxcb-xkb1
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -45,7 +65,11 @@ jobs:
       - name: Run slow tests
         env:
           QT_QPA_PLATFORM: offscreen
-        run: pytest -m slow --timeout=60
+        # Per-test budget is 240 s: tests/baseline/test_performance.py
+        # ::test_load_1024_baselines_under_three_minutes has a 180 s
+        # internal budget (R9.1 revised); 240 s gives 60 s headroom for
+        # CI runners slower than the M-class reference dev laptop.
+        run: pytest -m slow --timeout=240
 
   package-macos:
     runs-on: macos-latest
