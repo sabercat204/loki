@@ -430,6 +430,14 @@ class MainWindow(QMainWindow):
         if self._baseline_load_worker is not None:
             self._baseline_load_worker.request_cancel()
             self._baseline_load_worker.wait(30_000)
+        # Cancel + join any in-flight analysis worker. The
+        # classification + analysis pipelines poll the cancellation
+        # token between components and return partial reports
+        # promptly, so closeEvent doesn't need a long wait budget.
+        analysis_worker = getattr(self, "_analysis_worker", None)
+        if analysis_worker is not None and analysis_worker.isRunning():
+            analysis_worker.request_cancel()
+            analysis_worker.wait(5_000)
         settings = QSettings("LOKI", "Desktop")
         settings.setValue("main_window/geometry", self.saveGeometry())
         settings.setValue("main_window/state", self.saveState())
@@ -541,8 +549,17 @@ class MainWindow(QMainWindow):
         self._navigation.add_entry(NavigationGroup.REPORTS, key, label)
         self._set_status_message(None)
 
-    def _on_analysis_errored(self, message: str) -> None:
-        """Handle analysis failure."""
+    def _on_analysis_errored(self, exc: object) -> None:
+        """Handle analysis failure.
+
+        ``exc`` is one of the typed pipeline-error roots
+        (``AnalysisError``, ``ClassificationPipelineError``,
+        ``BaselineStoreError``) per the
+        :class:`~loki.gui.analysis_worker.AnalysisWorker` contract,
+        or a :class:`RuntimeError` wrapping any other exception.
+        ``str(exc)`` is the operator-facing message in every case.
+        """
+        message = f"{type(exc).__name__}: {exc}"
         QMessageBox.warning(self, "Analysis Error", f"Analysis failed:\n{message}")
         self._set_status_message(None)
 
