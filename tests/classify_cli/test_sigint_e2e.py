@@ -166,6 +166,17 @@ def _build_large_manifest_json(component_count: int) -> str:
     return manifest.model_dump_json(indent=2)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason=(
+        "signal.SIGINT delivery via Popen.send_signal is unsupported on "
+        "Windows (raises ValueError: Unsupported signal: 2). The CTRL_C_EVENT "
+        "alternative requires a shared console group, which the v1 CLI "
+        "cancellation contract does not provide. The cooperative-cancellation "
+        "contract is POSIX-specific in v1; in-process coverage in "
+        "test_cancellation.py exercises the contract on every platform."
+    ),
+)
 @pytest.mark.timeout(15)
 def test_sigint_during_classify_resolves_to_partial_or_clean_exit(
     tmp_path: Path,
@@ -213,7 +224,13 @@ def test_sigint_during_classify_resolves_to_partial_or_clean_exit(
     # SIGINT arrives, the test still passes via the exit-0 branch.
     manifest_path.write_text(_build_large_manifest_json(500), encoding="utf-8")
 
-    process = subprocess.Popen(
+    # ``with`` ensures the Popen object's stdout/stderr pipes are
+    # closed and the process is reaped even if an assertion below
+    # raises mid-test; this prevents ResourceWarning leaks (unclosed
+    # pipe FDs and "subprocess still running" warnings) that
+    # ``pytest``'s unraisable-exception plugin would otherwise
+    # surface against an unrelated later test.
+    with subprocess.Popen(
         [
             sys.executable,
             "-c",
@@ -226,35 +243,34 @@ def test_sigint_during_classify_resolves_to_partial_or_clean_exit(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-    )
+    ) as process:
+        # Warmup wait so the subprocess completes its lazy imports
+        # (pydantic + the classification subsystem + the rule loader)
+        # AND has begun its per-component classification loop before
+        # SIGINT arrives. If the signal lands during the import
+        # phase, the default Python SIGINT handler raises
+        # KeyboardInterrupt and the subprocess exits with -SIGINT
+        # (negative exit code), not the cooperative-cancellation
+        # exit 130. The 1.0s window is generous on developer
+        # hardware and modest on a heavily-loaded CI host;
+        # ``pytest.mark.timeout(15)`` bounds the worst case.
+        time.sleep(1.0)
 
-    # Warmup wait so the subprocess completes its lazy imports
-    # (pydantic + the classification subsystem + the rule loader)
-    # AND has begun its per-component classification loop before
-    # SIGINT arrives. If the signal lands during the import
-    # phase, the default Python SIGINT handler raises
-    # KeyboardInterrupt and the subprocess exits with -SIGINT
-    # (negative exit code), not the cooperative-cancellation
-    # exit 130. The 1.0s window is generous on developer
-    # hardware and modest on a heavily-loaded CI host;
-    # ``pytest.mark.timeout(15)`` bounds the worst case.
-    time.sleep(1.0)
+        # Send the signal. send_signal returns immediately; the
+        # subprocess will continue running until the cancel poll
+        # observes the flag flip, at which point cooperative
+        # cancellation surfaces the partial result.
+        process.send_signal(signal.SIGINT)
 
-    # Send the signal. send_signal returns immediately; the
-    # subprocess will continue running until the cancel poll
-    # observes the flag flip, at which point cooperative
-    # cancellation surfaces the partial result.
-    process.send_signal(signal.SIGINT)
-
-    try:
-        stdout, stderr = process.communicate(timeout=10)
-    except subprocess.TimeoutExpired:
-        # Belt-and-suspenders: kill the subprocess so the test
-        # does not leak a runaway child even if pytest-timeout
-        # somehow misses it.
-        process.kill()
-        process.communicate()
-        pytest.fail("subprocess did not exit within 10 seconds of SIGINT")
+        try:
+            stdout, stderr = process.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            # Belt-and-suspenders: kill the subprocess so the test
+            # does not leak a runaway child even if pytest-timeout
+            # somehow misses it.
+            process.kill()
+            process.communicate()
+            pytest.fail("subprocess did not exit within 10 seconds of SIGINT")
 
     # Contract under test: the only acceptable exit codes are
     # 130 (cancellation observed during classification) or 0

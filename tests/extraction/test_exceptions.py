@@ -33,7 +33,10 @@ def test_invalid_input_error_carries_path_and_message() -> None:
     err = InvalidInputError("/tmp/missing.rom", "file does not exist")
     assert err.path == Path("/tmp/missing.rom")
     assert err.message == "file does not exist"
-    assert str(err) == "file does not exist: /tmp/missing.rom"
+    # The path is rendered via ``str(Path)`` which uses native separators
+    # (POSIX on Linux/macOS, backslash on Windows); compare against the
+    # same rendering rather than a hard-coded POSIX literal.
+    assert str(err) == f"file does not exist: {Path('/tmp/missing.rom')}"
 
 
 def test_invalid_input_error_accepts_path_object() -> None:

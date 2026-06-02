@@ -54,18 +54,21 @@ def test_classification_config_error_accepts_str_path() -> None:
 
 
 def test_classification_rule_error_carries_path_rule_id_message() -> None:
+    rule_path = Path("/rules/file.yaml")
     err = ClassificationRuleError(
-        Path("/rules/file.yaml"),
+        rule_path,
         "intel.management-engine.firmware",
         "rule_id charset violation",
     )
-    assert err.path == Path("/rules/file.yaml")
+    assert err.path == rule_path
     assert err.rule_id == "intel.management-engine.firmware"
     assert err.message == "rule_id charset violation"
     rendered = str(err)
     assert "rule_id charset violation" in rendered
     assert "intel.management-engine.firmware" in rendered
-    assert "/rules/file.yaml" in rendered
+    # ``str(Path)`` uses native path separators; assert the platform-native
+    # rendering rather than a hard-coded POSIX literal.
+    assert str(rule_path) in rendered
 
 
 def test_classification_rule_error_accepts_none_rule_id() -> None:

@@ -24,10 +24,14 @@ def test_constructor_creates_missing_directory(tmp_path: Path) -> None:
     assert not target.exists()
     store = BaselineStore(_config(target))
     assert target.is_dir()
-    # Mode bits beyond the permission mask vary by umask; check the
-    # permission portion only.
-    mode_perms = target.stat().st_mode & 0o777
-    assert mode_perms == 0o755
+    # POSIX mode bits are POSIX-specific. Windows ignores ``os.chmod``'s
+    # group/other bits and reports mode 0o777 by default, so the
+    # 0o755-mode contract from R1.6 is only assertable on POSIX hosts.
+    if sys.platform != "win32":
+        # Mode bits beyond the permission mask vary by umask; check the
+        # permission portion only.
+        mode_perms = target.stat().st_mode & 0o777
+        assert mode_perms == 0o755
     assert store.storage_path == target.resolve()
 
 
