@@ -38,11 +38,17 @@ First v1 release. Loki ships nine spec-triple subsystems at IMPLEMENTED + APPROV
 - `models`, `scripts`: `MINIMAL_EXPOSURE` (pure data / smoke harness).
 - `feeds`: **`FULL`** — first subsystem with outbound network egress + signature/trust verification (NVD CVE bundle; package-embedded default trust anchor with `FeedsConfig.signing_key_path` rotation override).
 
+### Release artifacts
+
+- **macOS DMG** — `Loki-macOS-dmg` (161 MB), built via Briefcase ad-hoc signed; uploaded as a workflow artifact on the v1.0.0 tag-triggered CI run. Notarization not yet wired (deferred — needs an Apple Developer ID).
+- **Windows installer** — `Loki-Windows-installer` (81 MB), built via Briefcase ad-hoc signed; uploaded as a workflow artifact.
+- **Linux AppImage** — NOT shipped in v1.0.0. Briefcase's manylinux container build path fails on PyQt6's sip/qmake from-source build (`PyProjectOptionException: 'qmake'`). Tracked as Step 6 follow-on; tentative fix is to switch the Linux target from AppImage to a debian/rpm package, or install Qt6 dev tools in the AppImage build container.
+
 ### Known follow-on threads (post-v1)
 
 - **OT-LK-004 (LOW)** — formalize the GUI views spec triple so `gui` transitions from AD_HOC → APPROVED. The implementation is substantial and clean (1879 LOC, all seven views, smoke-clean); the spec triple is the missing artifact.
 - **OT-LK-005 (LOW)** — baseline schema migration tool. Not blocking until a second `Schema_Version` exists; until then the quarantine path is the right contract.
 - **OT-LK-006 (LOW)** — `ExtractionManifest` schema migration. Symmetric with OT-LK-005; not blocking until the model layer changes shape.
-- Native packaging completion — Briefcase config + `scripts/build_app.sh` exist and produce a macOS DMG (`dist/Loki-1.0.0.dmg` after this release; `dist/Loki-0.1.0.dmg` retained for reference). Outstanding: Apple developer-cert codesigning, `xcrun notarytool` notarization, CI wiring for tag-triggered packaging.
+- Native packaging completion — Outstanding: Apple developer-cert codesigning + `xcrun notarytool` notarization for the macOS DMG; equivalent Authenticode code-signing for the Windows installer; resolution of the Linux AppImage Briefcase/PyQt6/qmake build gap.
 
 [1.0.0]: https://github.com/sabercat204/loki/releases/tag/v1.0.0
