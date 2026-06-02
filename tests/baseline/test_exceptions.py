@@ -28,16 +28,20 @@ def test_inheritance_chain() -> None:
 
 
 def test_concurrent_modification_carries_snapshots() -> None:
+    path = Path("/tmp/x.yaml")
     err = BaselineConcurrentModificationError(
-        Path("/tmp/x.yaml"),
+        path,
         recorded=(123_456_789, 4096),
         observed=(123_999_999, 4097),
     )
-    assert err.path == Path("/tmp/x.yaml")
+    assert err.path == path
     assert err.recorded == (123_456_789, 4096)
     assert err.observed == (123_999_999, 4097)
     text = str(err)
-    assert "/tmp/x.yaml" in text
+    # ``str(Path)`` uses native path separators; assert the platform-native
+    # rendering rather than a hard-coded POSIX literal so the test passes
+    # on Windows, macOS, and Linux alike.
+    assert str(path) in text
     assert "(123456789, 4096)" in text
     assert "(123999999, 4097)" in text
 
@@ -54,7 +58,7 @@ def test_concurrent_modification_accepts_str_path() -> None:
 def test_already_exists_carries_path() -> None:
     err = BaselineAlreadyExistsError("/tmp/x.yaml")
     assert err.path == Path("/tmp/x.yaml")
-    assert "/tmp/x.yaml" in str(err)
+    assert str(Path("/tmp/x.yaml")) in str(err)
 
 
 def test_serialization_error_carries_message_and_cause() -> None:
@@ -75,7 +79,7 @@ def test_storage_unwritable_carries_path_and_errno() -> None:
     assert err.path == Path("/tmp/baselines")
     assert err.errno == 13
     text = str(err)
-    assert "/tmp/baselines" in text
+    assert str(Path("/tmp/baselines")) in text
     assert "errno=13" in text
 
 
@@ -94,7 +98,7 @@ def test_not_found_optionally_carries_path() -> None:
     assert err.path == Path("/tmp/baselines/intel-x1-1.0.yaml")
     text = str(err)
     assert str(bid) in text
-    assert "/tmp/baselines/intel-x1-1.0.yaml" in text
+    assert str(Path("/tmp/baselines/intel-x1-1.0.yaml")) in text
 
 
 def test_exceptions_can_be_raised_and_caught() -> None:

@@ -16,6 +16,8 @@ in ``test_exit_codes.py`` (task 11).
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from loki.cli import build_parser
@@ -30,9 +32,11 @@ class TestArgparseAcceptsBaseline:
         args = parser.parse_args(["classify", "manifest.json", "--rules-path", "/tmp/rules"])
         assert args.command == "classify"
         assert args.manifest == "manifest.json"
-        # ``--rules-path`` is type=Path, so the parsed value is a
-        # PosixPath whose string form matches.
-        assert str(args.rules_path) == "/tmp/rules"
+        # ``--rules-path`` is type=Path; compare via ``Path`` equality so
+        # the assertion is platform-agnostic (Windows renders this as
+        # ``\tmp\rules`` while POSIX renders it as ``/tmp/rules``;
+        # ``Path`` equality treats them as the same path).
+        assert args.rules_path == Path("/tmp/rules")
         # Defaults applied correctly.
         assert args.taxonomy_version == "1.0.0"
         assert args.progress is False

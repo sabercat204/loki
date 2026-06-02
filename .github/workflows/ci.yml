@@ -65,11 +65,15 @@ jobs:
       - name: Run slow tests
         env:
           QT_QPA_PLATFORM: offscreen
-        # Per-test budget is 240 s: tests/baseline/test_performance.py
+        # Per-test budget is 420 s: tests/baseline/test_performance.py
         # ::test_load_1024_baselines_under_three_minutes has a 180 s
-        # internal budget (R9.1 revised); 240 s gives 60 s headroom for
-        # CI runners slower than the M-class reference dev laptop.
-        run: pytest -m slow --timeout=240
+        # internal spec budget (R9.1 revised) that is doubled to 360 s
+        # by the in-test ``CI`` env-var multiplier on GitHub Actions
+        # runners (~2x slower than the reference M-class macOS laptop).
+        # 420 s pytest-timeout gives 60 s headroom over the 360 s
+        # in-test assertion so a real budget overrun is the failure
+        # mode, not a hard pytest-timeout kill.
+        run: pytest -m slow --timeout=420
 
   package-macos:
     runs-on: macos-latest
