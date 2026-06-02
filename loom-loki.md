@@ -125,16 +125,18 @@ Each entry summarizes a code module that already ships as part of v0.1.0 (status
 
     subsystem_name: "gui"
     codename: "Loki Desktop"
-    spec_status: "AD_HOC"
+    spec_status: "APPROVED"
     lifecycle_stage: "IMPLEMENTED"
-    spec_path: "(none — handoff-plan only; HANDOFF.md and HANDOFF.archive.md cover decisions)"
-    description: "PyQt6 desktop scaffold (scope B). Threaded extraction worker (loki.gui.extraction_worker); threaded baseline-load worker with per-file progress and cancellation (loki.gui.baseline_load_worker). MainWindow with navigation, workspace area, baseline list view, extraction trigger, demo-data fallback when no real workspace open. R2.8-R2.10 + R7.10-R7.11 from baseline-persistence honored at this layer. Smoke-harness at scripts/smoke_gui.py (offscreen mode via QT_QPA_PLATFORM=offscreen) gates GUI changes in CI."
-    threat_context: "STANDARD"   # PyQt6 surface running against operator-supplied firmware files; thread-safety via Qt signals.
+    spec_path: "specs/gui-views/"
+    design_path: "specs/gui-views/design.md"
+    tasks_path: "specs/gui-views/tasks.md"
+    description: "PyQt6 desktop surface formalized retroactively in specs/gui-views/ (OT-LK-004 RESOLVED 2026-06-02). Single QMainWindow + horizontal QSplitter (260 px navigation pane left, growable QTabWidget workspace right). Six read-only views (FirmwareImage, Extraction, Baseline, Analysis, ImageAnalysisReport, Fleet) render Pydantic models from the headless library APIs; the seventh view (ClassificationView, dead code) was removed in OT-LK-004 wave A. Three QThread-subclass workers (Extraction / BaselineLoad / Analysis) bridge synchronous library callbacks to Qt signals and accept cooperative cancellation (threading.Event for BaselineLoad and Analysis post-wave-A; bool flag for Extraction with a forward-tracked migration). 26 EARS-style requirements + 9 properties P77-P85. Smoke harness at scripts/smoke_gui.py (offscreen mode via QT_QPA_PLATFORM=offscreen)."
+    threat_context: "STANDARD"   # PyQt6 surface running against operator-supplied firmware files; thread-safety via Qt signals; no network egress.
     public_interface:
-      exports: [LokiApp / MainWindow / Workspace / BaselineLoadWorker / ExtractionWorker (consumed only via main entry point)]
-      consumes: [models, baseline, extraction, classification (read-only consumer); demo data under loki/gui/demo/]
-      produces: [interactive desktop application; persisted workspace state]
-    dependencies: [models, extraction, baseline, classification]
+      exports: [LokiApp / MainWindow / Workspace / BaselineLoadWorker / ExtractionWorker / AnalysisWorker (consumed only via main entry point)]
+      consumes: [models, baseline, extraction, classification, analysis (read-only consumer); demo data under loki/gui/demo/]
+      produces: [interactive desktop application; persisted window/splitter geometry via QSettings('LOKI', 'Desktop')]
+    dependencies: [models, extraction, baseline, classification, analysis]
     dependents: [cli (`loki gui` subcommand), scripts/smoke_gui.py]
 
     ---
@@ -424,6 +426,155 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 ---
 
 ## 4. Evolution Log
+
+    - date: "2026-06-02"
+      version: "1.0.2"
+      action: "OT-LK-004 RESOLVED — gui spec triple BIND-complete; subsystem registry flipped AD_HOC → APPROVED. Cleanup waves A+C landed pre-spec; QThread→QThreadPool migration deferred to a future OT-LK."
+      author: "LOKI contributors"
+      subsystems_affected: [gui (AD_HOC → APPROVED)]
+      notes: |
+        Single-conversation arc closing OT-LK-004 (GUI views
+        formalization). Eight commits across this round:
+
+        Pre-flight cleanup (so the spec describes the cleanest
+        possible state of the GUI, not the AD_HOC v1.0.0 state):
+
+        - 98c2110 — wave A: AnalysisWorker gets a threading.Event
+          cancellation token + typed-exception error contract
+          mirroring BaselineLoadWorker; MainWindow.closeEvent now
+          cancels and joins the analysis worker too. ClassificationView
+          (loki/gui/views/classification_view.py, 83 lines) deleted —
+          dead code never opened from MainWindow; its rendering
+          surface is now covered by AnalysisView. Verification
+          preserved: 1678 pytest pass, mypy --strict 0 errors / 313
+          source files (was 314), ruff + format clean, smoke clean.
+        - e138baf — wave C: AnalysisView fills in every public
+          field on ImageAnalysisReport (recommended_actions table,
+          baseline_comparison sub-section with summary + deviation
+          tables, full per-finding evidence: classification_record
+          axis breakdown, deviation_score per-axis, matched_rule /
+          CVE / signature, raw_indicators, finding_id). FleetView
+          renders FleetAnalysisReport.recommended_actions. Both
+          changes are additive and read-only; no model changes;
+          test count preserved.
+
+        Spec triple (this round, three waves of agent work):
+
+        - DRAFT panel: 3 isolated agents wrote DRAFT requirements
+          from different angles (model-fidelity-first,
+          threat-context-first, operator-experience-first). Judge
+          agent picked Draft 1 (model-fidelity) as winner on every
+          primary criterion (CAST faithfulness; EARS format match
+          with specs/analysis-engine/requirements.md; full
+          coverage of survey-identified formalization risks; richest
+          P77-P85 property allocation; file:line citation density;
+          appropriate length at ~26 requirements). Grafted ~10
+          concrete details from runners-up (subsystem-boundary
+          import audit; QApplication identity quad; worker emit-
+          exclusivity invariant; SHA-256 chunk-size; closeEvent
+          ordering specifics; concrete extraction / analysis config
+          defaults).
+        - TENSION panel: 5 isolated lenses (correctness-vs-impl;
+          threat-context-completeness; cross-subsystem-contract-
+          adherence; EARS-format-compliance; operator-honest-
+          framing). Each found gaps the others didn't. Cross-lens
+          consensus surfaced three high-value items (BaselineRegistry
+          term mismatch; closeEvent / cancellation defensive
+          programming; stale R10 cross-reference) that each got
+          applied to multiple requirements.
+        - HARDEN: tension-pass document at
+          specs/gui-views/requirements-tension-pass.md (292 lines)
+          consolidates all five lenses; HARDEN footer records
+          audit-items-applied count plus three new forward-tracked
+          items added to Requirement 24 (single-window-only
+          ratification; worker BaselineStore re-load; help-menu
+          single-entry closure) and three new CI gates added to
+          Requirement 26 (loki.cli import audit; processEvents
+          audit; network-egress import-time audit).
+        - DESIGN BIND: specs/gui-views/design.md (695 lines) covers
+          subsystem positioning, architecture diagram, view ↔ model
+          binding table, worker contracts, action surface +
+          enablement matrix, persistence / closeEvent lifecycle,
+          threading model with D2 forward-tracked migration
+          rationale, test surface, P77-P85 properties with
+          Validates-Requirements mapping, three open questions Q1-Q3,
+          and five revertable design defaults.
+        - TASKS BIND: specs/gui-views/tasks.md (685 lines) groups
+          ~17 tasks into five waves: (1) acceptance verification
+          run-and-confirm against the running GUI per requirement;
+          (2) test coverage gap fills (the survey-identified
+          AnalysisWorker test gap; new tab-key uniqueness +
+          QSettings round-trip + analysis cancel idempotence
+          properties P77-P79); (3) forward-tracked refactor
+          candidates (D2 QThreadPool, ExtractionWorker bool→Event
+          migration, D11 preferences UI, D12 export, Action_Function
+          Protocol extraction, Briefcase docs/icons/release path
+          completions) — each becomes its own OT-LK after spec
+          ships; (4) doc refresh (README At-a-Glance row, CHANGELOG
+          GUI section); (5) final acceptance gate.
+
+        Operator-banked CAST decisions (D1-D15) recorded in the
+        spec triple so future contributors don't relitigate. Three
+        consequential ones to highlight:
+
+        - D2 threading model: ratifies QThread-subclass-per-task
+          for v1; QObject.moveToThread() / QThreadPool migration is
+          forward-tracked in Requirement 24 and tasks.md Wave 3.
+        - D3 cancellation primitive: threading.Event uniformly,
+          except ExtractionWorker still uses a bool flag (forward-
+          tracked nit; AnalysisWorker conformed in wave A).
+        - D11 / D12: configuration UI and export surface explicitly
+          deferred — v1 GUI is default-pipeline-only. CLI is the
+          operator-config surface for v1.
+
+        Subsystem registry: gui spec_status AD_HOC → APPROVED;
+        spec_path / design_path / tasks_path now point at the real
+        spec files; description rewritten to reflect the formalized
+        surface and waves A+C. Dependencies list extended with
+        analysis (was implicit before; now explicit).
+
+        OT-LK-004 status: OPEN — formalization round needed →
+        RESOLVED. The 11 risks the survey flagged for the spec-triple
+        writer are all addressed in the requirements doc (Action_
+        Function MainWindow protocol in R13; Tab_Key namespacing in
+        R9; UI-level concurrency in R15; QSettings org/domain locking
+        in R18; AnalysisWorker test gap in R21+R26+Wave 2 task).
+
+        Forward-tracked threads remain open: OT-LK-005 (baseline
+        schema migration tool) unchanged; OT-LK-006 (ExtractionManifest
+        schema migration) unchanged. New forward threads from the
+        gui spec triple — to be opened as separate OT-LK entries when
+        prioritised: QThreadPool migration; ExtractionWorker Event
+        migration; preferences dialog; export surface; Action_Function
+        Protocol extraction; Briefcase release-path completions;
+        Linux AppImage qmake build gap (already tracked under v1.0.0
+        release notes).
+
+        Changed files in this round (this commit only — waves A
+        and C committed separately):
+
+        - specs/gui-views/requirements.md (new, 1725 lines, 26
+          requirements + properties P77-P85).
+        - specs/gui-views/requirements-tension-pass.md (new, 292
+          lines, 5-lens TENSION audit + HARDEN footer).
+        - specs/gui-views/design.md (new, 695 lines).
+        - specs/gui-views/tasks.md (new, 685 lines, ~17 tasks
+          across 5 waves).
+        - loom-loki.md (this file): gui registry entry flipped to
+          APPROVED + IMPLEMENTED with real spec / design / tasks
+          paths; this evolution-log entry appended; OT-LK-004 status
+          updated below.
+        - STATE.md (gitignored; not committed): refreshed.
+
+        No source code changes in this round (waves A + C handle
+        those separately; spec triple is documentation-only).
+
+      verification:
+        - "pytest -q: 1678 passed, 13 deselected (preserved across the round)"
+        - "mypy --strict loki tests scripts: 0 errors / 313 source files"
+        - "ruff check + ruff format --check loki tests scripts: clean"
+        - "QT_QPA_PLATFORM=offscreen scripts/smoke_gui.py: clean"
+        - "spec format: 27 #### Acceptance Criteria headings; 0 bare-bold AC blocks; 9 P-NN property allocations P77-P85"
 
     - date: "2026-06-02"
       version: "1.0.1"
@@ -2544,38 +2695,93 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
     - id: "OT-LK-004"
       title: "GUI views (classification + analysis + fleet) — formalization"
-      status: "OPEN — formalization round needed (GUI is IMPLEMENTED + AD_HOC at HEAD as of 2026-06-02; reality v1.0.1 audit)"
-      priority: "LOW"
+      status: "RESOLVED — 2026-06-02; gui spec triple BIND-complete at specs/gui-views/; subsystem registry flipped AD_HOC → APPROVED in loom v1.0.2"
+      priority: "CLOSED"
       notes: |
-        Amended 2026-06-02 against the v1.0.1 evolution-log audit.
-        The previous wording ("OPEN — depends on classification-
-        cli or analysis-engine; v1 runs headless") understated
-        what already exists. Reality at HEAD (commit 1bae4f7):
+        Closed in a single conversation arc on 2026-06-02. Three
+        commits land the implementation cleanup before the spec
+        triple drafts (98c2110 wave A, e138baf wave C); a fourth
+        commit lands the spec triple itself.
 
-        - `loki/gui/` ships ~1879 lines of code: a 950-line
-          `main_window.py`, a `navigation.py`, a public
-          `loki.gui.app.run()` entry point, three QThread workers
-          (`analysis_worker.py`, `baseline_load_worker.py`,
-          `extraction_worker.py`), and SEVEN views
-          (`analysis_view.py`, `baseline_view.py`,
-          `classification_view.py`, `extraction_view.py`,
-          `firmware_image_view.py`, `fleet_view.py`,
-          `report_view.py`).
-        - CLI integration is wired: `loki gui` subcommand in
-          `loki/cli.py:_handle_gui` lazy-imports `loki.gui.app.run`.
-        - Offscreen smoke harness `scripts/smoke_gui.py` exits
-          clean under `QT_QPA_PLATFORM=offscreen`.
+        Cleanup waves (pre-spec, so the spec describes the cleanest
+        possible state of the GUI rather than the v1.0.0 AD_HOC
+        snapshot):
 
-        What this thread is now about: writing the spec triple
-        AGAINST the existing implementation so the subsystem
-        transitions from `IMPLEMENTED + AD_HOC` to
-        `IMPLEMENTED + APPROVED`. Plus any feature gaps the
-        formalization audit surfaces. Estimated arc: ~2-4
-        focused sessions (CAST + DRAFT + TENSION + HARDEN + design
-        BIND + tasks BIND, then 0-2 small implementation waves
-        for whatever the audit surfaces — substantially less
-        than the original "6-10 sessions to greenfield the GUI"
-        estimate).
+        - Wave A (98c2110): AnalysisWorker gets a threading.Event
+          cancellation token + typed-exception error contract
+          mirroring BaselineLoadWorker; closeEvent now cancels and
+          joins the analysis worker too. ClassificationView (83
+          lines) deleted — dead code never opened from MainWindow;
+          its rendering surface is covered by AnalysisView.
+        - Wave B (QThreadPool migration) DEFERRED to a future OT-LK
+          per operator decision in CAST. The v1 spec ratifies the
+          existing QThread-subclass pattern with a forward-tracked
+          migration recorded in Requirement 24.
+        - Wave C (e138baf): AnalysisView fills in every public
+          field on ImageAnalysisReport (recommended_actions table,
+          baseline_comparison sub-section, full per-finding evidence
+          including classification_record axis breakdown,
+          deviation_score per-axis, matched_rule / CVE / signature,
+          raw_indicators, finding_id). FleetView renders
+          FleetAnalysisReport.recommended_actions.
+
+        Spec triple (parallel-agent workflow; same conversation):
+
+        - DRAFT panel: 3 isolated agents wrote DRAFT requirements
+          from different angles (model-fidelity / threat-context /
+          operator-experience). Judge picked Draft 1 on every
+          primary criterion (CAST faithfulness; EARS format; risk
+          coverage; property-allocation richness; file:line citation
+          density; appropriate length). Grafted ~10 concrete details
+          from runners-up.
+        - TENSION panel: 5 isolated lenses (correctness-vs-impl;
+          threat-context-completeness; cross-subsystem-contract-
+          adherence; EARS-format-compliance; operator-honest-
+          framing). Cross-lens consensus surfaced three high-value
+          items (BaselineRegistry term mismatch; closeEvent /
+          cancellation defensive programming; stale R10 cross-
+          reference) that each got applied to multiple requirements.
+        - HARDEN: tension-pass document (292 lines) consolidates
+          all five lenses; HARDEN footer records audit-items applied
+          plus three new forward-tracked items in Requirement 24
+          (single-window-only ratification; worker BaselineStore
+          re-load; help-menu single-entry closure) and three new CI
+          gates in Requirement 26 (loki.cli import audit;
+          processEvents audit; network-egress import-time audit).
+        - DESIGN BIND: 695 lines covering subsystem positioning,
+          architecture diagram, view ↔ model binding table, worker
+          contracts, action surface + enablement matrix, persistence
+          / closeEvent lifecycle, threading model with D2 forward-
+          tracked migration rationale, test surface, properties P77-
+          P85 with Validates-Requirements mapping, three open
+          questions Q1-Q3, and five revertable design defaults.
+        - TASKS BIND: ~17 tasks across 5 waves: (1) acceptance
+          verification per requirement; (2) test coverage gap fills;
+          (3) forward-tracked refactor candidates (each becomes its
+          own OT-LK after spec ships); (4) doc refresh; (5) final
+          acceptance gate.
+
+        Subsystem registry: gui spec_status AD_HOC → APPROVED;
+        spec_path / design_path / tasks_path now point at the real
+        spec files at specs/gui-views/.
+
+        Spec artifacts:
+
+        - specs/gui-views/requirements.md (1725 lines, 26
+          requirements + 9 properties P77-P85)
+        - specs/gui-views/requirements-tension-pass.md (292 lines,
+          5-lens TENSION audit + HARDEN footer)
+        - specs/gui-views/design.md (695 lines)
+        - specs/gui-views/tasks.md (685 lines, ~17 tasks across
+          5 waves)
+
+        Forward threads opened by this round (each will become its
+        own OT-LK entry when prioritised; not opened proactively to
+        avoid backlog clutter): QThreadPool migration; ExtractionWorker
+        bool→Event migration; preferences dialog; export surface;
+        Action_Function Protocol extraction; Briefcase release-path
+        completions; Linux AppImage qmake build gap (already tracked
+        in v1.0.0 release notes).
 
     - id: "OT-LK-005"
       title: "Baseline schema migration tool"
