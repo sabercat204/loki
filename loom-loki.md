@@ -425,6 +425,111 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
 
 ## 4. Evolution Log
 
+    - date: "2026-06-02"
+      version: "1.0.1"
+      action: "v1.0.0 release prep: STATE.md refresh + .venv rebuild + AD_HOC-discovery audit; OT-LK-004 GUI views and native packaging found IMPLEMENTED + AD_HOC."
+      author: "LOKI contributors"
+      subsystems_affected: []
+      notes: |
+        Documentation-only round preparing the v1.0.0 release tag
+        against the platform that landed at v1.0.0 in the prior
+        evolution-log entry (2026-05-29). No source code changes;
+        no spec changes; no test changes.
+
+        Survey findings (worth recording so future sessions have
+        the corrected picture):
+
+        1. .venv rebuild. The prior .venv carried a stale
+           interpreter shebang (`/Users/daborond/Projects/loki/`)
+           against the actual repo path
+           (`/Users/daborond/Sloptropy/loki/`). This was the
+           workaround referenced in OT-LK-001 notes
+           ("workaround is `.venv/bin/python -m <tool>`"). Rebuilt
+           with `python3.12 -m venv .venv` + `pip install -e
+           '.[dev]'`; direct `.venv/bin/{pytest,mypy,ruff}`
+           invocations now work.
+
+        2. OT-LK-004 (GUI views) is largely DONE as AD_HOC. The
+           harness §5 status said "OPEN — depends on
+           classification-cli or analysis-engine" and "v1 runs
+           headless". Reality at HEAD (commit 1bae4f7): the
+           `loki/gui/` package contains 1879 lines including a
+           950-line `main_window.py`, a `navigation.py`, a public
+           `loki.gui.app.run()` entry point, and seven views:
+           `analysis_view.py`, `baseline_view.py`,
+           `classification_view.py`, `extraction_view.py`,
+           `firmware_image_view.py`, `fleet_view.py`,
+           `report_view.py`. The QThread workers
+           (`analysis_worker.py`, `baseline_load_worker.py`,
+           `extraction_worker.py`) wire the views to the headless
+           library APIs. The CLI exposes `loki gui` (subcommand
+           in `loki/cli.py:_handle_gui`). Smoke harness
+           (`scripts/smoke_gui.py`) clean under
+           `QT_QPA_PLATFORM=offscreen`. The subsystem registry
+           already records `gui` as IMPLEMENTED + AD_HOC; what's
+           stale is OT-LK-004's wording. OT-LK-004 status amended
+           below: the OPEN portion is FORMALIZATION (write the
+           spec triple against the existing implementation so it
+           transitions from AD_HOC → APPROVED) plus any
+           gap-features that audit surfaces, NOT greenfield
+           implementation.
+
+        3. Native packaging is largely DONE as AD_HOC. Briefcase
+           is configured in `pyproject.toml [tool.briefcase]`
+           (bundle `dev.loki`; macOS / windows / linux app
+           targets; startup_module `loki.gui`). `scripts/
+           build_app.sh` shells Briefcase with optional `--sign`
+           flag. A 162-MB DMG ships at `dist/Loki-0.1.0.dmg`
+           dated 2026-05-29. What's missing: `[project].version`
+           and `[tool.briefcase].version` are still `0.1.0`
+           rather than `1.0.0`; Apple developer-certificate
+           codesigning + `xcrun notarytool` notarization not
+           wired into a CI pipeline; release-tag-triggered
+           packaging not yet automated.
+
+        4. README claims overstate AD_HOC reality. The "At a
+           Glance" Packaging row reads "macOS .app + DMG,
+           Windows, Linux AppImage" which is true for the
+           macOS DMG that exists but has not yet been verified
+           on Windows / Linux runners. The "Subsystems" table
+           includes a `loki gui` row which is accurate. Overall
+           the README is closer to truth than the harness was;
+           STATE.md was the staler artifact (now refreshed
+           2026-06-02).
+
+        Operator decision (2026-06-02): pursue v1 in three
+        sequenced phases — (a) library v1 release artifacts
+        (this round + tag), (b) OT-LK-004 GUI formalization
+        spec triple, (c) packaging completion (codesign +
+        notarize + CI). Each is its own focused conversation
+        per the project's "spec drafting is its own
+        conversation" rule.
+
+        OT-LK-004 status amended below from "OPEN — depends on
+        classification-cli or analysis-engine" to "OPEN —
+        formalization round needed (GUI is IMPLEMENTED + AD_HOC
+        at HEAD)".
+
+        Changed files in this round:
+
+        - STATE.md (gitignored; not committed): refreshed to
+          current pytest count, mypy file count, subsystem
+          summary, and operator's banked v1 sequence.
+        - loom-loki.md (this file): this evolution-log entry
+          appended; OT-LK-004 status amended.
+
+        No source code, spec, or test changes. Verification at
+        HEAD (commit 1bae4f7) preserved per the gates
+        recorded below.
+
+      verification:
+        - "pytest -q: 1678 passed, 13 deselected (28.4s)"
+        - "mypy --strict loki: 0 issues across 116 source files"
+        - "mypy --strict loki tests scripts: 0 issues across 314 source files"
+        - "ruff check + ruff format --check loki tests scripts: clean"
+        - "QT_QPA_PLATFORM=offscreen scripts/smoke_gui.py: clean"
+        - "pytest -m slow --co: 13 performance tests collected"
+
     - date: "2026-05-29"
       version: "1.0.0"
       action: "Fleet analysis engine IMPLEMENTED (18/18 tasks); ninth IMPLEMENTED + APPROVED subsystem; harness promoted to v1.0.0"
@@ -2438,10 +2543,39 @@ The graph is a strict DAG. `models` is the leaf (no dependencies). `extraction` 
       notes: "HANDOFF.md candidate move #2. Requirements DRAFT → TENSION → HARDEN landed 2026-05-28; design BIND landed same session against project's `spec drafting is its own conversation` rule (operator-approved deviation, recorded in `specs/classification-cli/requirements-tension-pass.md` HARDEN footer). Spec triple at `specs/classification-cli/{requirements.md, design.md, requirements-tension-pass.md, tasks.md}`. The 12 banked design decisions D1-D12 from CAST conversation plus two operator-added flags (`--debug`, `--summary-only`) are documented in requirements.md; the seven design defaults D1-D7 plus three open questions Q1-Q3 are documented in design.md (D-defaults all baked in at implementation; Q1-Q3 pinned by implementation choices). Properties P53-P58 with explicit P59 handoff to the next subsystem. Subsystem registered as `classify-cli` in §2; lifecycle_stage IMPLEMENTED, spec_status APPROVED. v1.0.0 shipped: ~310 source lines added (loki/classify_helpers.py + loki/cli.py classify additions); ~104 new tests across 22 test modules under tests/classify_cli/; final pytest count 1317; final mypy --strict file count 240. R11.1 wrapper-only timing budget validated at <200ms. Closed via the Wave 6 implementation BIND that materialized the three classify-cli dependency-graph edges (classify-cli → models, classify-cli → classification, cli → classify-cli)."
 
     - id: "OT-LK-004"
-      title: "GUI classification view"
-      status: "OPEN — depends on classification-cli or analysis-engine"
+      title: "GUI views (classification + analysis + fleet) — formalization"
+      status: "OPEN — formalization round needed (GUI is IMPLEMENTED + AD_HOC at HEAD as of 2026-06-02; reality v1.0.1 audit)"
       priority: "LOW"
-      notes: "HANDOFF.md candidate move #3. v1's library API runs headless; a future GUI-classification spec defines the desktop surface. Probably best paired with OT-LK-001 (analysis-engine) so the GUI surface covers classification → analysis in one consistent UX pass rather than landing classification-only first."
+      notes: |
+        Amended 2026-06-02 against the v1.0.1 evolution-log audit.
+        The previous wording ("OPEN — depends on classification-
+        cli or analysis-engine; v1 runs headless") understated
+        what already exists. Reality at HEAD (commit 1bae4f7):
+
+        - `loki/gui/` ships ~1879 lines of code: a 950-line
+          `main_window.py`, a `navigation.py`, a public
+          `loki.gui.app.run()` entry point, three QThread workers
+          (`analysis_worker.py`, `baseline_load_worker.py`,
+          `extraction_worker.py`), and SEVEN views
+          (`analysis_view.py`, `baseline_view.py`,
+          `classification_view.py`, `extraction_view.py`,
+          `firmware_image_view.py`, `fleet_view.py`,
+          `report_view.py`).
+        - CLI integration is wired: `loki gui` subcommand in
+          `loki/cli.py:_handle_gui` lazy-imports `loki.gui.app.run`.
+        - Offscreen smoke harness `scripts/smoke_gui.py` exits
+          clean under `QT_QPA_PLATFORM=offscreen`.
+
+        What this thread is now about: writing the spec triple
+        AGAINST the existing implementation so the subsystem
+        transitions from `IMPLEMENTED + AD_HOC` to
+        `IMPLEMENTED + APPROVED`. Plus any feature gaps the
+        formalization audit surfaces. Estimated arc: ~2-4
+        focused sessions (CAST + DRAFT + TENSION + HARDEN + design
+        BIND + tasks BIND, then 0-2 small implementation waves
+        for whatever the audit surfaces — substantially less
+        than the original "6-10 sessions to greenfield the GUI"
+        estimate).
 
     - id: "OT-LK-005"
       title: "Baseline schema migration tool"
