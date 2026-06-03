@@ -42,7 +42,7 @@ First v1 release. Loki ships nine spec-triple subsystems at IMPLEMENTED + APPROV
 
 - **macOS DMG** — `Loki-macOS-dmg` (161 MB), built via Briefcase ad-hoc signed; uploaded as a workflow artifact on the v1.0.0 tag-triggered CI run. Notarization not yet wired (deferred — needs an Apple Developer ID).
 - **Windows installer** — `Loki-Windows-installer` (81 MB), built via Briefcase ad-hoc signed; uploaded as a workflow artifact.
-- **Linux AppImage** — NOT shipped in v1.0.0. Briefcase's manylinux container build path fails on PyQt6's sip/qmake from-source build (`PyProjectOptionException: 'qmake'`). Tracked as Step 6 follow-on; tentative fix is to switch the Linux target from AppImage to a debian/rpm package, or install Qt6 dev tools in the AppImage build container.
+- **Linux AppImage** — fixed mid-session by capping `pyqt6<6.10` in both `[project].dependencies` and `[tool.briefcase].requires`. PyQt6 6.10 moved its Linux x86_64 wheel platform tag from `manylinux_2_28_x86_64` to `manylinux_2_34_x86_64`; Briefcase's AppImage builder runs in a `manylinux_2_28` container (AlmaLinux 8 / glibc 2.28) where the newer tag has no compatible wheel, so pip silently fell back to the sdist and the sip/qmake source build failed (`PyProjectOptionException: 'qmake'`) since qmake6 is not in the container. The pin resolves to PyQt6 6.9.1 (last release with a `manylinux_2_28` wheel) and unblocks the AppImage build path. Re-evaluate when Briefcase bumps its AppImage base image past glibc 2.34, or if/when we switch the Linux backend to Flatpak / system (deb).
 
 ### Known follow-on threads (post-v1)
 
