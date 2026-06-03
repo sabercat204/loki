@@ -27,7 +27,16 @@ classifiers = [
 dependencies = [
     "pydantic>=2.7,<3.0",
     "pyyaml>=6.0,<7.0",
-    "pyqt6>=6.6",
+    # PyQt6 6.10 moved its Linux x86_64 wheel platform tag from
+    # ``manylinux_2_28_x86_64`` to ``manylinux_2_34_x86_64``. Briefcase's
+    # AppImage build runs inside a ``manylinux_2_28`` container (AlmaLinux 8 /
+    # glibc 2.28), where 6.10+ wheels do not match — pip then falls back to
+    # the sdist and tries a sip/qmake source build that fails because qmake
+    # is not in the container. Pin <6.10 so PyQt6 6.9.1 (last release with a
+    # ``manylinux_2_28`` wheel) resolves cleanly. Re-evaluate when Briefcase
+    # bumps its AppImage base image past glibc 2.34, or when we switch the
+    # Linux backend to Flatpak / system (deb).
+    "pyqt6>=6.6,<6.10",
     "uefi_firmware>=1.10",
     "cryptography>=42.0",
 ]
@@ -102,7 +111,11 @@ license = "LicenseRef-Proprietary"
 requires = [
     "pydantic>=2.7,<3.0",
     "pyyaml>=6.0,<7.0",
-    "pyqt6>=6.6",
+    # See [project].dependencies above for the rationale on the <6.10 cap.
+    # The Briefcase ``requires`` list is what pip resolves inside the build
+    # container, so it MUST mirror the project pin or the AppImage build
+    # silently picks up a 6.10+ release with no manylinux_2_28 wheel.
+    "pyqt6>=6.6,<6.10",
     "uefi_firmware>=1.10",
     "cryptography>=42.0",
 ]
