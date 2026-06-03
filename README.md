@@ -47,6 +47,47 @@ python3.12 -m venv .venv
 .venv/bin/python -m loki gui
 ```
 
+## Installing Pre-built Packages
+
+Each `v*` tag publishes three artifacts via the `package-{macos,windows,linux}` CI jobs (visible under the Actions tab on the run for that tag):
+
+| Platform | Artifact | Size |
+|---|---|---|
+| macOS | `Loki-macOS-dmg` (`.dmg`) | ~155 MB |
+| Windows | `Loki-Windows-installer` (`.msi`) | ~77 MB |
+| Linux | `Loki-Linux-AppImage` (`.AppImage`) | ~134 MB |
+
+All three artifacts are **ad-hoc signed** — the build is integrity-checked but carries no developer-trust assertion. macOS Gatekeeper, Windows SmartScreen, and AppImage runtime checks will warn on first launch. The bypass is platform-dependent and only needs to happen once per install:
+
+### macOS
+
+Right-click the mounted `Loki.app` (or the file inside `/Applications/`) → **Open** → confirm in the Gatekeeper dialog. Subsequent launches don't re-prompt.
+
+If you'd rather strip the quarantine attribute outright (e.g., to launch from the command line):
+
+```bash
+xattr -cr /Applications/Loki.app
+```
+
+For repeated workflows where you re-sign downloaded CI artifacts with your own local certificate, see `scripts/codesign_local_macos.sh`.
+
+### Windows
+
+Right-click the `.msi` → **Properties** → check **Unblock** at the bottom → **OK**. Then double-click to install.
+
+If SmartScreen still warns at install time, click **More info** → **Run anyway**.
+
+### Linux
+
+```bash
+chmod +x Loki-*.AppImage
+./Loki-*.AppImage
+```
+
+The AppImage is self-contained; it does not require root or distro packages. It runs against the system's Qt platform integration (X11 or Wayland) and inherits its theme.
+
+> **Note on signing posture.** Loki does not currently ship with a paid Apple Developer ID code-signing certificate or a paid Authenticode certificate. End-user trust currently rests on the GitHub Actions workflow that produced each artifact (the build log on the tag's CI run is reproducible from the public source). If you want notarized macOS builds or Authenticode-signed Windows builds, file an issue and we'll revisit.
+
 ## CLI Reference
 
 ### Extract firmware components
