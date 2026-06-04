@@ -7,12 +7,12 @@
 | Metric | Value |
 |--------|-------|
 | Language | Python 3.12 |
-| Source files | 116 modules (~17.8k lines) |
-| Test files | 197 modules (~39k lines) |
-| Test count | 1678 passing |
-| Type safety | `mypy --strict` clean (314 files) |
+| Source files | 116 modules (~19.4k lines) |
+| Test files | 198 modules (~39.2k lines) |
+| Test count | 1681 passing (13 slow-marker tests run separately) |
+| Type safety | `mypy --strict` clean (315 files across `loki tests scripts`) |
 | Lint | `ruff check` + `ruff format` clean |
-| Packaging | macOS `.app` + DMG, Windows, Linux AppImage |
+| Packaging | macOS DMG, Windows MSI, Linux AppImage (all ad-hoc signed; v1.0.0 tag) |
 
 ## Subsystems
 
@@ -26,13 +26,13 @@
 | **Feeds** | NVD CVE cache + implant-rule signatures | `loki feeds` |
 | **Fleet** | Cross-image aggregation: posture distribution, outliers, CVE rollup | `loki fleet` |
 | **Verification** | Authenticode + UEFI signature chain verification against trust stores | via `--trust-store` |
-| **GUI** | PyQt6 desktop app with extraction, analysis, and fleet views | `loki gui` |
+| **GUI** | PyQt6 desktop app: extraction, baseline, analysis, fleet, report, and firmware-image views | `loki gui` |
 
 ## Quick Start
 
 ```bash
 # Clone and set up
-git clone <your-repo-url> loki
+git clone https://github.com/sabercat204/loki.git
 cd loki
 python3.12 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
@@ -43,8 +43,10 @@ python3.12 -m venv .venv
 # Run the test suite
 .venv/bin/python -m pytest -q
 
-# Launch the GUI
-.venv/bin/python -m loki gui
+# Launch the GUI (either form works: `python -m loki` calls __main__,
+# `loki gui` goes via the CLI subcommand)
+.venv/bin/python -m loki
+.venv/bin/loki gui
 ```
 
 ## Installing Pre-built Packages
@@ -233,7 +235,10 @@ Requires the `package` extra: `pip install -e ".[package]"`
 .venv/bin/python -m pytest -m slow
 
 # GUI smoke test (offscreen)
-QT_QPA_PLATFORM=offscreen .venv/bin/python -c "import sys; sys.path.insert(0,'.'); exec(open('scripts/smoke_gui.py').read())"
+QT_QPA_PLATFORM=offscreen .venv/bin/python scripts/smoke_gui.py
+
+# Briefcase launcher contract (boots GUI then exits)
+QT_QPA_PLATFORM=offscreen .venv/bin/python -m loki
 ```
 
 ## License
