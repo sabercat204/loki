@@ -9,7 +9,10 @@ Threading model:
 - One worker per extraction. The main window owns the worker and
   deletes it when the run completes.
 - Cancellation is request/response via :meth:`request_cancellation`,
-  which the worker checks between components (R9.4).
+  which the worker checks between components (R9.4). The cancellation
+  primitive is a :class:`threading.Event`, matching
+  :class:`~loki.gui.baseline_load_worker.BaselineLoadWorker` and
+  :class:`~loki.gui.analysis_worker.AnalysisWorker` (D3).
 - Errors are *captured*, not raised. The worker emits the error
   shape via :pyattr:`errored` so the UI can show a ``QMessageBox``
   on the main thread; the worker thread itself always exits cleanly.
@@ -17,6 +20,7 @@ Threading model:
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal
@@ -64,7 +68,12 @@ class ExtractionWorker(QThread):
         super().__init__(parent)
         self._path = path
         self._config = config
-        self._cancelled = False
+        # ``threading.Event`` is the right primitive: setting it from
+        # the GUI thread (via :meth:`request_cancellation`) and reading
+        # it from the worker thread (via the ``cancel`` callback) is
+        # atomic without an explicit lock, and the same pattern is used
+        # by :class:`BaselineLoadWorker` and :class:`AnalysisWorker`.
+        self._cancel_event = threading.Event()
 
     # ------------------------------------------------------------------
     # Public control surface
@@ -73,15 +82,15 @@ class ExtractionWorker(QThread):
     def request_cancellation(self) -> None:
         """Ask the worker to stop at the next component boundary (R9.4).
 
-        Thread-safe; sets a plain attribute that the cancellation
-        callback inspects on the worker thread. Safe to call from any
-        thread because Python attribute access is atomic.
+        Idempotent. Once set, the cancel flag stays set for the rest
+        of the worker's lifetime; future invocations are no-ops.
         """
-        self._cancelled = True
+        self._cancel_event.set()
 
     @property
     def cancelled(self) -> bool:
-        return self._cancelled
+        """Return whether :meth:`request_cancellation` has been called."""
+        return self._cancel_event.is_set()
 
     # ------------------------------------------------------------------
     # QThread.run
@@ -93,15 +102,12 @@ class ExtractionWorker(QThread):
         def _on_progress(event: ProgressEvent) -> None:
             self.progress_event.emit(event)
 
-        def _is_cancelled() -> bool:
-            return self._cancelled
-
         try:
             result = extract_firmware(
                 self._path,
                 self._config,
                 progress=_on_progress,
-                cancel=_is_cancelled,
+                cancel=self._cancel_event.is_set,
             )
         except (
             InvalidInputError,

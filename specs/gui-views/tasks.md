@@ -162,7 +162,8 @@ not a Wave 1 patch.
   and the single-active-worker concurrency policy.**
   - depends-on: T-GUI-001
   - references: R10 (ExtractionWorker signals, typed errors,
-    cancellation, `bool`-flag forward-tracked), R11
+    cancellation primitive — now `threading.Event`-uniform after
+    v1.0.3 D3 closure), R11
     (BaselineLoadWorker `threading.Event`, partial-result-on-cancel,
     P79), R12 (AnalysisWorker fresh BaselineStore, two signals,
     `threading.Event`, default config values, P80), R15 (UI-level
@@ -171,10 +172,11 @@ not a Wave 1 patch.
   - deliverables: a verification note confirming (a) each worker
     declares exactly the signal set R10 / R11 / R12 specify;
     (b) `errored` payloads are typed `Exception` instances (after
-    Wave A); (c) `request_cancel()` sets the `threading.Event`
-    on `BaselineLoadWorker` + `AnalysisWorker` (Wave A) while
-    `ExtractionWorker` still uses a `bool` flag (forward-tracked
-    nit, not a v1 blocker); (d) `_active_worker` /
+    Wave A); (c) all three workers use a `threading.Event`
+    cancellation primitive after v1.0.3 (`request_cancellation()`
+    on `ExtractionWorker`, `request_cancel()` on
+    `BaselineLoadWorker` and `AnalysisWorker` — different method
+    names but same primitive); (d) `_active_worker` /
     `_baseline_load_worker` / `_analyze_action.setEnabled(False)`
     guards prevent double-spawn; (e) AnalysisWorker constructs a
     fresh `BaselineStore` per run with the documented
@@ -189,9 +191,10 @@ not a Wave 1 patch.
     `loki/gui/extraction_worker.py`, `baseline_load_worker.py`, and
     `analysis_worker.py` line by line and tick off the signal /
     cancellation / config bullets.
-  - out-of-scope: ExtractionWorker `bool → threading.Event`
-    migration (forward-tracked OT-LK; T-GUI-014); QThreadPool
-    migration (forward-tracked OT-LK; T-GUI-013).
+  - out-of-scope: QThreadPool migration (forward-tracked OT-LK;
+    T-GUI-013). The `bool → threading.Event` migration that was
+    forward-tracked at v1 BIND has since CLOSED in v1.0.3 — see
+    T-GUI-014.
 
 - [ ] **T-GUI-005. Verify Requirements 13, 14, 17, 19 —
   Action_Functions, menu surface, error dialog discipline, demo
@@ -279,8 +282,9 @@ not a Wave 1 patch.
   acceptance gate readiness.**
   - depends-on: T-GUI-001 .. T-GUI-006
   - references: R24 (forward-tracked items list — Wave B threading,
-    ExtractionWorker bool flag, fleet group, Action protocol,
-    Briefcase user-data path, tab-key enum), R25 (P77-P85
+    fleet group, Action protocol, Briefcase user-data path,
+    tab-key enum; the ExtractionWorker bool flag was struck
+    through in v1.0.3), R25 (P77-P85
     allocation; next subsystem starts at P86), R26 (per-requirement
     coverage map + worker signal coverage + view rendering tests +
     properties + smoke + three CI grep gates), R27 (BIND-time gap
@@ -423,28 +427,30 @@ the next planning cycle.
     OT-LK; introducing any worker base-class abstraction in this
     OT-LK.
 
-- [ ] **T-GUI-014. Open OT-LK-N: ExtractionWorker `bool → threading.Event`
+- [x] **T-GUI-014. ExtractionWorker `bool → threading.Event`
   cancellation primitive uniformity (D3 forward-track).**
+  *Closed in harness round v1.0.3 — the migration itself was
+  collapsed into this task rather than a separate OT-LK.*
   - depends-on: T-GUI-008
-  - references: R10 (ExtractionWorker bool flag ratified for v1
-    with the migration explicitly forward-tracked), R11 / R12
-    (BaselineLoadWorker + AnalysisWorker already use
-    `threading.Event`), R24 (D3 forward-tracked), R27 (recorded
-    in the registry's `forward_track` list); design §Cancellation
-    primitive.
-  - deliverables: an OT-LK ticket draft titled "Migrate
-    ExtractionWorker cancellation from bool flag to
-    threading.Event for primitive uniformity" capturing (a) the
-    cross-platform GIL-atomicity caveat documented in R10's
-    implementation note; (b) the public API delta — none, the
-    `request_cancellation()` method signature is unchanged; (c)
-    the test surface — a Hypothesis property mirroring P79's
-    idempotence claim against ExtractionWorker; (d) the success
-    criterion (one-line cancellation primitive unification, no
-    behavioural change visible at the Action_Function or smoke
-    layer).
-  - verification: ticket entry committed.
-  - out-of-scope: the migration itself.
+  - references: R10 (ExtractionWorker now uses `threading.Event`,
+    matching R11 / R12), R24 (D3 closed; struck through in the
+    forward-tracked list), R27 (registry `forward_track` list
+    no longer includes this item); design §`bool` flag →
+    `threading.Event` migration — CLOSED v1.0.3.
+  - deliverables: (a) `loki/gui/extraction_worker.py` swaps
+    `self._cancelled: bool` for `self._cancel_event:
+    threading.Event`; the `cancel` callback passed to
+    `extract_firmware` is `self._cancel_event.is_set` (bound
+    method) rather than a closure over the bool; (b) public API
+    unchanged — `request_cancellation()` and the `cancelled`
+    property keep their v1.0.0 names so callers (`MainWindow`
+    at three call-sites) need no changes; (c)
+    `tests/gui/test_extraction_worker.py` adds five tests
+    including `test_request_cancellation_is_idempotent` (the
+    P79 mirror); (d) success criterion met — gates green at
+    1686 pytest pass / 316 mypy files / ruff clean / format
+    clean / smoke clean.
+  - verification: tests pass; spec triple refreshed.
 
 - [ ] **T-GUI-015. Open OT-LK-N: GUI configuration exposure +
   preferences dialog (D11 forward-track).**

@@ -788,9 +788,9 @@ surfaces as a dialog rather than a crash.
   (`loki/gui/extraction_worker.py:99-112`,
   `loki/gui/main_window.py:904-928`)
 - THE `ExtractionWorker.request_cancellation()` method SHALL
-  set a thread-safe flag the worker checks before invoking
-  `extract_firmware`; the underlying `extract_firmware` call
-  SHALL respond to the cancel callback by completing the
+  set a thread-safe `threading.Event` the worker checks before
+  invoking `extract_firmware`; the underlying `extract_firmware`
+  call SHALL respond to the cancel callback by completing the
   in-flight component and returning a partial
   `ExtractionResult` (or raising a typed pipeline error per
   the extraction-pipeline spec). THE worker SHALL re-emit that
@@ -798,13 +798,15 @@ surfaces as a dialog rather than a crash.
   `errored`. The partial-result-on-cancel contract is enforced
   by the upstream pipeline, not the worker class itself; the
   worker is a transparent re-emitter.
-  *Implementation note:* "Thread-safe flag" here means the
-  CPython GIL-protected attribute write that bool assignment
-  guarantees (atomic in CPython, not portable). v1 ratifies
-  the existing `bool` flag implementation; migrating to
-  `threading.Event` (matching `BaselineLoadWorker` and
-  `AnalysisWorker`) is forward-tracked per Requirement 24
-  decision D3.
+  *Implementation note:* The cancellation primitive is
+  `threading.Event`, matching `BaselineLoadWorker` and
+  `AnalysisWorker` (D3 — primitive uniformity landed
+  post-v1.0.0 in harness round v1.0.3). The public method names
+  (`request_cancellation()` / `cancelled` property) are
+  intentionally distinct from the other workers'
+  `request_cancel()` / `is_cancel_requested()` to preserve the
+  v1.0.0 caller contract; the underlying primitive is now
+  uniform.
   (`loki/gui/extraction_worker.py:64-84`)
 - THE `MainWindow.start_extraction(image, path, config)` method
   SHALL refuse to spawn a second worker while
@@ -1701,7 +1703,13 @@ that must hold before the registry update lands.
 - THE forward-tracked items below SHALL be recorded in the
   design doc and in the registry's `forward_track` list:
   - Wave B: `QThreadPool` + `QRunnable` threading migration (D2).
-  - `ExtractionWorker._cancelled` bool → `threading.Event` (D3).
+  - ~~`ExtractionWorker._cancelled` bool → `threading.Event`
+    (D3).~~ **CLOSED in harness round v1.0.3:**
+    `ExtractionWorker` now uses `threading.Event` for primitive
+    uniformity with the other two workers; the public method
+    names remain distinct (`request_cancellation()` /
+    `cancelled` property) to preserve the v1.0.0 caller
+    contract.
   - `NavigationGroup.FLEET` group surface (currently unused;
     reserved for live-fleet-membership UX).
   - Action_Function `MainWindow` coupling → optional `Protocol`
